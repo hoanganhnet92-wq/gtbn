@@ -33,6 +33,13 @@
   --blue:#5aa2ff; --blue-ink:#0b1b33; --amber:#f0b73a; --purple:#a58cf0; --green:#4cc79a; --red:#ef7a72;
   --soft-green:#173428; --soft-red:#3b1f1d; --soft-blue:#16273f; --shadow:rgba(0,0,0,.6); color-scheme:dark;
 }
+.ctabs{display:flex;gap:8px;background:var(--surface);padding-top:2px;padding-bottom:14px;box-shadow:0 1px 0 var(--line)}
+.ctabs button{flex:1;min-width:0;border:1.5px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:9px 6px;
+  font-size:.9rem;font-weight:700;cursor:pointer;line-height:1.25}
+.ctabs button.on{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
+.soon{text-align:center;padding-top:40px;padding-bottom:40px}
+.soon h2{margin-bottom:8px}
+.soon p{color:var(--muted);margin:0 auto}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;
   -webkit-tap-highlight-color:transparent}
@@ -234,15 +241,16 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
       <h1>Khóa học mini</h1>
       <button class="ibtn r" id="theme" aria-label="Đổi giao diện sáng/tối"></button>
     </div>
+    <div class="ctabs pad" id="ctabs" role="tablist"><button data-c="basic" role="tab">Giao tiếp cơ bản</button><button data-c="l1" role="tab">Level 1</button><button data-c="l2" role="tab">Level 2</button></div>
 
     <div class="sec pad">
       <h2>Khóa học ngắn là gì?</h2>
       <p>Khóa học mini gom thuật ngữ và câu mẫu của một chủ đề cụ thể để bạn học tập trung. Học đúng nhóm từ hay dùng nhất giúp vốn từ tăng nhanh hơn học dàn trải.</p>
     </div>
 
-    <div class="sec pad">
-      <h2>Giao tiếp với bệnh nhân — Cơ bản</h2>
-      <p>Luyện nói chuyện với bệnh nhân bằng tiếng Anh đơn giản: chào hỏi, hỏi triệu chứng và cơn đau, hỏi tiền sử và thuốc, khám bệnh, giải thích bước tiếp theo và dặn dò. Phù hợp người mới bắt đầu.</p>
+    <div class="sec pad" id="sec-course">
+      <h2 id="c-title">Giao tiếp với bệnh nhân — Cơ bản</h2>
+      <p id="c-desc">Luyện nói chuyện với bệnh nhân bằng tiếng Anh đơn giản: chào hỏi, hỏi triệu chứng và cơn đau, hỏi tiền sử và thuốc, khám bệnh, giải thích bước tiếp theo và dặn dò. Phù hợp người mới bắt đầu.</p>
 
       <span class="label">Tiến độ của bạn</span>
       <div class="tiles">
@@ -253,13 +261,18 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
       </div>
     </div>
 
-    <div class="sec pad">
+    <div class="sec pad soon" id="sec-soon" hidden>
+      <h2>Level 2 sắp có</h2>
+      <p>Nội dung Level 2 chưa được thêm. Khi có bài giảng mới, anh gửi lên là em đưa vào tab này.</p>
+    </div>
+
+    <div class="sec pad" id="sec-route">
       <h2>Lộ trình các phần</h2>
       <p class="srs-intro" id="route-now"></p>
       <div class="route" id="route"></div>
     </div>
 
-    <div class="sec pad">
+    <div class="sec pad" id="sec-review">
       <h2>Ôn tập</h2>
       <div class="seg" id="rmode"><button data-m="anki" class="on">Thẻ Anki</button><button data-m="fill">Điền từ</button></div>
       <div class="seg" id="flevel" hidden><button data-l="basic">Cơ bản · điền từ</button><button data-l="adv">Nâng cao</button></div>
@@ -273,7 +286,7 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
     <button class="linkrow pad" id="open-list">Mở danh sách thuật ngữ
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
 
-    <div class="tools pad">
+    <div class="tools pad" id="tools">
       <span style="color:var(--muted);font-size:.84rem">Tiến độ lưu trên trình duyệt của bạn</span>
       <button class="txtbtn" id="reset">Đặt lại tiến độ</button>
     </div>
@@ -476,11 +489,339 @@ P(5,"Please come back in one week.","Xin hãy quay lại sau một tuần.","Do 
 P(5,"Call us if you have a high fever.","Hãy gọi cho chúng tôi nếu anh/chị sốt cao.","What number should I call?","Tôi gọi số nào?");
 P(5,"Do you understand what I have explained?","Anh/chị có hiểu những gì tôi đã giải thích không?","Yes, thank you, doctor.","Vâng, cảm ơn bác sĩ.");
 
-var ITEMS=RAW.map(function(r,i){return {id:i,g:r[0],t:r[1],e:r[2],ipa:r[3],m:r[4],ex:r[5],exm:r[6]};});
+function mkItems(raw){return raw.map(function(r,i){return {id:i,g:r[0],t:r[1],e:r[2],ipa:r[3],m:r[4],ex:r[5],exm:r[6]};});}
+var ITEMS=mkItems(RAW);
+
+/* ===== LEVEL 1: các câu/cụm từ cần học trong 4 bài giảng Unit 1–4 (file PPTX) ===== */
+var L1_GROUPS=["U1 · Chào hỏi & hỏi thăm", "U1 · Giới thiệu bản thân", "U1 · Nghề nghiệp", "U1 · Khoa/phòng", "U1 · Từ vựng cần nhớ", "U1 · Câu giao tiếp ở bệnh viện", "U1 · Lịch sự & nhờ giúp đỡ", "U1 · Hội thoại thực hành", "U2 · Số đếm 0–20", "U2 · Số hàng chục & số hay gặp", "U2 · Số trong bệnh viện", "U2 · Các tháng trong năm", "U2 · Số thứ tự & ngày", "U2 · Hỏi và nói giờ", "U2 · Sáng/chiều & giờ hẹn", "U2 · Bảng chữ cái & đánh vần", "U2 · Hội thoại thực hành", "U3 · Khoa thường gặp", "U3 · Các khoa khác trên biển chỉ dẫn", "U3 · Cận lâm sàng & hỗ trợ", "U3 · Khu vực chức năng", "U3 · Địa điểm hữu ích", "U3 · Hỏi vị trí", "U3 · Chỉ đường", "U3 · Tầng & vị trí", "U3 · Mẫu câu hữu ích", "U3 · Hội thoại thực hành", "U4 · Chỉ dẫn cơ bản", "U4 · Vị trí", "U4 · Tầng & thang máy", "U4 · Cách nói lịch sự", "U4 · Cấu trúc câu hữu ích", "U4 · Mốc chỉ đường", "U4 · Ví dụ: đi đến phòng xét nghiệm", "U4 · Khi cần hỏi lại", "U4 · Hội thoại thực hành"];
+var L1_RAW=[];
+function L(g,e,m){L1_RAW.push([g,'P',e,'',m,'','']);}
+/* U1 · Chào hỏi & hỏi thăm */
+L(0,"Good morning!","Chào buổi sáng!");
+L(0,"Good afternoon!","Chào buổi chiều!");
+L(0,"Hello! / Hi!","Xin chào!");
+L(0,"Goodbye! / See you!","Tạm biệt! / Hẹn gặp lại!");
+L(0,"How are you?","Bạn khỏe không?");
+L(0,"How are you today?","Hôm nay bạn thế nào?");
+L(0,"I'm fine, thank you.","Tôi khỏe, cảm ơn.");
+L(0,"I'm good, thank you.","Tôi ổn, cảm ơn.");
+L(0,"And you?","Còn bạn thì sao?");
+/* U1 · Giới thiệu bản thân */
+L(1,"My name is Tyler. / I'm Tyler.","Tên tôi là Tyler. / Tôi là Tyler.");
+L(1,"I'm a doctor.","Tôi là bác sĩ.");
+L(1,"I'm a nurse.","Tôi là điều dưỡng.");
+L(1,"I'm a receptionist.","Tôi là nhân viên lễ tân.");
+L(1,"I work at Haiphong International Hospital.","Tôi làm việc tại bệnh viện ĐKQT Hải Phòng.");
+L(1,"Nice to meet you.","Rất vui được gặp bạn.");
+L(1,"I work in the Emergency Department.","Tôi làm việc tại Khoa Cấp cứu.");
+L(1,"Hello! My name is Lan. I'm a nurse. I work in the Emergency Department. Nice to meet you!","Xin chào! Tôi tên là Lan. Tôi là điều dưỡng. Tôi làm việc tại Khoa Cấp cứu. Rất vui được gặp bạn!");
+/* U1 · Nghề nghiệp */
+L(2,"Doctor / Physician","Bác sĩ");
+L(2,"Nurse","Điều dưỡng");
+L(2,"Receptionist","Nhân viên lễ tân");
+L(2,"Pharmacist","Dược sĩ");
+L(2,"Technician","Kỹ thuật viên");
+L(2,"Staff","Nhân viên");
+L(2,"Surgeon","Phẫu thuật viên");
+/* U1 · Khoa/phòng */
+L(3,"Emergency Department","Khoa Cấp cứu");
+L(3,"Outpatient Department","Khoa Khám bệnh");
+L(3,"Inpatient Department","Khoa Điều trị nội trú");
+L(3,"General Planning Department","Phòng Kế hoạch Tổng hợp");
+L(3,"Pharmacy","Khoa Dược");
+L(3,"Diagnostic Imaging Department","Khoa Chẩn đoán hình ảnh");
+L(3,"Laboratory","Khoa Xét nghiệm");
+/* U1 · Từ vựng cần nhớ */
+L(4,"Hello","Xin chào");
+L(4,"Welcome","Chào mừng");
+L(4,"Doctor","Bác sĩ");
+L(4,"Patient","Bệnh nhân");
+L(4,"Hospital","Bệnh viện");
+L(4,"Department","Khoa/Phòng");
+L(4,"Appointment","Lịch hẹn");
+/* U1 · Câu giao tiếp ở bệnh viện */
+L(5,"Welcome to our hospital.","Chào mừng bạn đến bệnh viện chúng tôi.");
+L(5,"How can I help you?","Tôi có thể giúp gì cho bạn?");
+L(5,"May I help you?","Tôi có thể giúp bạn không?");
+L(5,"Please come in.","Mời bạn vào.");
+L(5,"Please sit down.","Mời bạn ngồi.");
+L(5,"Please wait a bit.","Vui lòng chờ một chút.");
+L(5,"Please wait for 5 minutes.","Vui lòng chờ 5 phút.");
+L(5,"Please wait a moment.","Vui lòng chờ một chút.");
+L(5,"What is your name?","Bạn tên là gì? (họ và tên đầy đủ)");
+L(5,"May I have your phone number?","Cho tôi xin số điện thoại của bạn được không?");
+L(5,"Do you have an appointment?","Bạn có lịch hẹn không?");
+/* U1 · Lịch sự & nhờ giúp đỡ */
+L(6,"Please.","Xin vui lòng.");
+L(6,"Thank you.","Cảm ơn.");
+L(6,"You're welcome.","Không có gì.");
+L(6,"Excuse me.","Xin lỗi / Cho tôi hỏi.");
+L(6,"I'm sorry.","Tôi xin lỗi.");
+L(6,"One moment, please.","Xin vui lòng chờ một chút.");
+L(6,"Sorry, I don't understand.","Xin lỗi, tôi không hiểu.");
+L(6,"Could you repeat that, please?","Bạn có thể nhắc lại được không?");
+L(6,"Could you speak slowly, please?","Bạn có thể nói chậm lại không?");
+L(6,"Let me check.","Để tôi kiểm tra.");
+/* U1 · Hội thoại thực hành */
+L(7,"My name is John Smith.","Tôi tên là John Smith.");
+L(7,"I have an appointment.","Tôi có lịch hẹn.");
+L(7,"My name is David. I'm a doctor.","Tôi tên là David. Tôi là bác sĩ.");
+L(7,"My name is Mai. I'm a nurse.","Tôi tên là Mai. Tôi là điều dưỡng.");
+L(7,"I'm your nurse today.","Hôm nay tôi là điều dưỡng phụ trách bạn.");
+/* U2 · Số đếm 0–20 */
+L(8,"zero","không (0)");
+L(8,"one","một (1)");
+L(8,"two","hai (2)");
+L(8,"three","ba (3)");
+L(8,"four","bốn (4)");
+L(8,"five","năm (5)");
+L(8,"six","sáu (6)");
+L(8,"seven","bảy (7)");
+L(8,"eight","tám (8)");
+L(8,"nine","chín (9)");
+L(8,"ten","mười (10)");
+L(8,"eleven","mười một (11)");
+L(8,"twelve","mười hai (12)");
+L(8,"thirteen","mười ba (13)");
+L(8,"fourteen","mười bốn (14)");
+L(8,"fifteen","mười lăm (15)");
+L(8,"sixteen","mười sáu (16)");
+L(8,"seventeen","mười bảy (17)");
+L(8,"eighteen","mười tám (18)");
+L(8,"nineteen","mười chín (19)");
+L(8,"twenty","hai mươi (20)");
+/* U2 · Số hàng chục & số hay gặp */
+L(9,"thirty","ba mươi (30)");
+L(9,"forty","bốn mươi (40)");
+L(9,"fifty","năm mươi (50)");
+L(9,"sixty","sáu mươi (60)");
+L(9,"seventy","bảy mươi (70)");
+L(9,"eighty","tám mươi (80)");
+L(9,"ninety","chín mươi (90)");
+L(9,"one hundred","một trăm (100)");
+L(9,"twenty-one","hai mươi mốt (21)");
+L(9,"thirty-five","ba mươi lăm (35)");
+L(9,"forty-eight","bốn mươi tám (48)");
+L(9,"sixty-two","sáu mươi hai (62)");
+/* U2 · Số trong bệnh viện */
+L(10,"My phone number is 0912 345 678.","Số điện thoại của tôi là 0912 345 678.");
+L(10,"Your room number is 205.","Số phòng của bạn là 205.");
+L(10,"I am 35 years old.","Tôi 35 tuổi.");
+L(10,"Your patient ID is 123456.","Mã bệnh nhân của bạn là 123456.");
+/* U2 · Các tháng trong năm */
+L(11,"January","Tháng 1");
+L(11,"February","Tháng 2");
+L(11,"March","Tháng 3");
+L(11,"April","Tháng 4");
+L(11,"May","Tháng 5");
+L(11,"June","Tháng 6");
+L(11,"July","Tháng 7");
+L(11,"August","Tháng 8");
+L(11,"September","Tháng 9");
+L(11,"October","Tháng 10");
+L(11,"November","Tháng 11");
+L(11,"December","Tháng 12");
+L(11,"What month is it?","Bây giờ là tháng mấy?");
+/* U2 · Số thứ tự & ngày */
+L(12,"first","thứ nhất (1st)");
+L(12,"second","thứ hai (2nd)");
+L(12,"third","thứ ba (3rd)");
+L(12,"fourth","thứ tư (4th)");
+L(12,"fifth","thứ năm (5th)");
+L(12,"tenth","thứ mười (10th)");
+L(12,"fifteenth","thứ mười lăm (15th)");
+L(12,"twentieth","thứ hai mươi (20th)");
+L(12,"twenty-first","thứ hai mươi mốt (21st)");
+L(12,"thirtieth","thứ ba mươi (30th)");
+L(12,"thirty-first","thứ ba mươi mốt (31st)");
+L(12,"What's the date today?","Hôm nay là ngày mấy?");
+L(12,"It's the tenth of November.","Hôm nay là ngày 10 tháng 11.");
+/* U2 · Hỏi và nói giờ */
+L(13,"seven o'clock","7:00 · bảy giờ đúng");
+L(13,"eight fifteen","8:15 · tám giờ mười lăm");
+L(13,"nine thirty","9:30 · chín giờ ba mươi");
+L(13,"ten forty-five","10:45 · mười giờ bốn mươi lăm");
+L(13,"twelve o'clock","12:00 · mười hai giờ đúng");
+L(13,"three twenty","3:20 · ba giờ hai mươi");
+L(13,"What time is it?","Bây giờ là mấy giờ?");
+L(13,"It's nine thirty.","Bây giờ là 9 giờ 30.");
+L(13,"What time is your appointment?","Lịch hẹn của bạn lúc mấy giờ?");
+/* U2 · Sáng/chiều & giờ hẹn */
+L(14,"7:00 a.m.","7 giờ sáng");
+L(14,"12:00 p.m.","12 giờ trưa");
+L(14,"3:00 p.m.","3 giờ chiều");
+L(14,"7:30 p.m.","7 giờ 30 tối");
+L(14,"Your appointment is at 9 a.m.","Lịch hẹn của bạn lúc 9 giờ sáng.");
+L(14,"Please arrive at 8:30 a.m.","Vui lòng đến lúc 8 giờ 30 sáng.");
+L(14,"The doctor will see you at 2 p.m.","Bác sĩ sẽ khám cho bạn lúc 2 giờ chiều.");
+/* U2 · Bảng chữ cái & đánh vần */
+L(15,"A","đọc là: ay");
+L(15,"B","đọc là: bee");
+L(15,"C","đọc là: see");
+L(15,"D","đọc là: dee");
+L(15,"E","đọc là: ee");
+L(15,"F","đọc là: ef");
+L(15,"G","đọc là: jee");
+L(15,"H","đọc là: aitch");
+L(15,"I","đọc là: eye");
+L(15,"J","đọc là: jay");
+L(15,"K","đọc là: kay");
+L(15,"L","đọc là: el");
+L(15,"M","đọc là: em");
+L(15,"N","đọc là: en");
+L(15,"O","đọc là: oh");
+L(15,"P","đọc là: pee");
+L(15,"Q","đọc là: cue");
+L(15,"R","đọc là: ar");
+L(15,"S","đọc là: ess");
+L(15,"T","đọc là: tee");
+L(15,"U","đọc là: you");
+L(15,"V","đọc là: vee");
+L(15,"W","đọc là: double-u");
+L(15,"X","đọc là: ex");
+L(15,"Y","đọc là: why");
+L(15,"Z","đọc là: zee (Mỹ) / zed (Anh)");
+L(15,"Please check your name's spelling.","Vui lòng kiểm tra chính tả tên của bạn.");
+L(15,"How do you spell your name?","Bạn đánh vần tên thế nào?");
+/* U2 · Hội thoại thực hành */
+L(16,"What is your date of birth?","Ngày sinh của bạn là ngày nào?");
+L(16,"I was born on 5 February 1990.","Tôi sinh ngày 5/2/1990.");
+L(16,"Your appointment is on 10 November.","Lịch hẹn của bạn vào ngày 10/11.");
+L(16,"It is at 9:30 a.m.","Lúc 9 giờ 30 sáng.");
+L(16,"Could you repeat the date, please?","Bạn có thể nhắc lại ngày được không?");
+L(16,"Could you spell your surname, please?","Bạn có thể đánh vần họ của mình không?");
+L(16,"It's N–G–U–Y–E–N.","Đó là N–G–U–Y–E–N.");
+/* U3 · Khoa thường gặp */
+L(17,"Emergency","Cấp cứu");
+L(17,"Radiology","Chẩn đoán hình ảnh");
+L(17,"Outpatient Department (OPD)","Khoa Khám bệnh");
+L(17,"Pharmacy Department","Khoa Dược / Nhà thuốc");
+L(17,"General Surgery Department","Khoa Ngoại tổng hợp");
+/* U3 · Các khoa khác trên biển chỉ dẫn */
+L(18,"General Internal Medicine","Khoa Nội tổng hợp");
+L(18,"Cardiology","Khoa Tim mạch");
+L(18,"Neurology and Stroke","Khoa Thần kinh đột quỵ");
+L(18,"Orthopedics","Khoa Chấn thương chỉnh hình");
+L(18,"Dentistry","Khoa Răng hàm mặt");
+L(18,"ENT (Ear, Nose and Throat)","Tai Mũi Họng");
+/* U3 · Cận lâm sàng & hỗ trợ */
+L(19,"Customer Care Department","Phòng Chăm sóc khách hàng");
+L(19,"Ultrasound Room","Phòng siêu âm");
+L(19,"Endoscopy Department","Khoa Nội soi");
+L(19,"X-ray / CT Scan / MRI Room","Phòng chụp X-quang / cắt lớp vi tính / cộng hưởng từ");
+L(19,"Rehabilitation Department","Khoa Phục hồi chức năng");
+/* U3 · Khu vực chức năng */
+L(20,"Reception","Quầy tiếp đón");
+L(20,"Registration Desk","Quầy đăng ký");
+L(20,"Waiting Area","Khu vực chờ");
+L(20,"Cashier","Quầy thu ngân");
+L(20,"Consultation Room / Clinic","Phòng khám");
+L(20,"Procedure Room","Phòng thủ thuật");
+L(20,"Patient Room","Phòng bệnh");
+L(20,"Restroom / Toilet","Nhà vệ sinh");
+/* U3 · Địa điểm hữu ích */
+L(21,"Main Entrance","Cửa chính");
+L(21,"Exit","Lối ra");
+L(21,"Elevator / Lift","Thang máy");
+L(21,"Stairs","Cầu thang bộ");
+L(21,"Escalator","Thang cuốn");
+L(21,"Cafeteria","Nhà ăn / Căng tin");
+L(21,"International Medical Center","Phòng khám quốc tế");
+/* U3 · Hỏi vị trí */
+L(22,"Where is the pharmacy?","Nhà thuốc ở đâu?");
+L(22,"Where is the laboratory?","Phòng xét nghiệm ở đâu?");
+L(22,"Where is the restroom?","Nhà vệ sinh ở đâu?");
+L(22,"Where is the consultation room?","Phòng khám ở đâu?");
+/* U3 · Chỉ đường */
+L(23,"Go straight.","Đi thẳng.");
+L(23,"Turn left.","Rẽ trái.");
+L(23,"Turn right.","Rẽ phải.");
+L(23,"It is on your left.","Ở bên trái của bạn.");
+L(23,"It is on your right.","Ở bên phải của bạn.");
+L(23,"Take the elevator to the second floor.","Đi thang máy lên tầng 2.");
+/* U3 · Tầng & vị trí */
+L(24,"Ground floor / First floor","Tầng trệt / tầng 1");
+L(24,"Downstairs","Ở tầng dưới");
+L(24,"Second floor","Tầng 2");
+L(24,"Upstairs","Ở tầng trên");
+L(24,"Third floor","Tầng 3");
+L(24,"Next to","Bên cạnh");
+L(24,"Opposite","Đối diện");
+L(24,"Near","Gần");
+/* U3 · Mẫu câu hữu ích */
+L(25,"The pharmacy is on the first floor.","Nhà thuốc ở tầng 1.");
+L(25,"The laboratory is next to the Intensive Care Unit.","Khoa xét nghiệm ở cạnh đơn vị Hồi sức tích cực.");
+L(25,"Please go to the reception.","Vui lòng đến quầy tiếp đón.");
+L(25,"The doctor will see you in the consultation room.","Bác sĩ sẽ khám cho bạn tại phòng khám.");
+/* U3 · Hội thoại thực hành */
+L(26,"Excuse me. Where is the pharmacy?","Xin lỗi, nhà thuốc ở đâu?");
+L(26,"It is on the first floor.","Nó ở tầng 1.");
+L(26,"Go straight and turn right.","Đi thẳng và rẽ phải.");
+L(26,"No problem.","Không có gì.");
+L(26,"I need a blood test.","Tôi cần xét nghiệm máu.");
+L(26,"Please go to the laboratory.","Vui lòng đến phòng xét nghiệm.");
+L(26,"Where is it?","Nó ở đâu?");
+L(26,"It is on the second floor, opposite the ENT clinic.","Nó ở tầng 2, đối diện phòng khám Tai Mũi Họng.");
+/* U4 · Chỉ dẫn cơ bản */
+L(27,"Go straight ahead.","Đi thẳng về phía trước.");
+L(27,"Go back.","Quay lại.");
+L(27,"Stop here, please.","Vui lòng dừng ở đây.");
+L(27,"Stop here","Dừng ở đây");
+L(27,"Keep walking.","Tiếp tục đi bộ.");
+/* U4 · Vị trí */
+L(28,"On your left","Ở bên trái của bạn");
+L(28,"On your right","Ở bên phải của bạn");
+L(28,"In front of","Ở phía trước");
+L(28,"Behind","Ở phía sau");
+L(28,"Between","Ở giữa");
+/* U4 · Tầng & thang máy */
+L(29,"First floor","Tầng 1");
+L(29,"Go upstairs.","Đi lên tầng trên.");
+L(29,"Take the elevator.","Đi thang máy.");
+L(29,"Go downstairs.","Đi xuống tầng dưới.");
+/* U4 · Cách nói lịch sự */
+L(30,"Please follow me.","Vui lòng đi theo tôi.");
+L(30,"This way, please.","Xin mời đi lối này.");
+L(30,"Please wait here.","Vui lòng chờ ở đây.");
+L(30,"Let me show you.","Để tôi chỉ cho bạn.");
+/* U4 · Cấu trúc câu hữu ích */
+L(31,"Go to the pharmacy.","Đến nhà thuốc.");
+L(31,"Turn left at the reception desk.","Rẽ trái tại quầy tiếp đón.");
+L(31,"It is next to the elevator.","Nó ở cạnh thang máy.");
+L(31,"It is on the second floor.","Nó ở tầng 2 (cách gọi Mỹ).");
+/* U4 · Mốc chỉ đường */
+L(32,"Reception desk","Quầy tiếp đón");
+L(32,"Elevator","Thang máy");
+L(32,"Waiting room","Phòng chờ");
+/* U4 · Ví dụ: đi đến phòng xét nghiệm */
+L(33,"Take the elevator to 6th floor.","Đi thang máy lên tầng 6.");
+L(33,"Turn left at the elevator.","Rẽ trái tại thang máy.");
+L(33,"The microbiology is on your right.","Phòng vi sinh ở bên phải.");
+/* U4 · Khi cần hỏi lại */
+L(34,"Which department do you need?","Bạn cần đến khoa nào?");
+L(34,"Are you looking for the pharmacy?","Bạn đang tìm nhà thuốc phải không?");
+L(34,"Let me check for you.","Để tôi kiểm tra giúp bạn.");
+/* U4 · Hội thoại thực hành */
+L(35,"Excuse me. Where is the radiology department?","Xin lỗi, khoa Chẩn đoán hình ảnh ở đâu?");
+L(35,"Go straight and turn left at the elevator.","Đi thẳng và rẽ trái tại thang máy.");
+L(35,"Is it far?","Có xa không?");
+L(35,"No. It is next to the laboratory.","Không. Nó ở cạnh phòng xét nghiệm.");
+L(35,"Where is the cashier?","Quầy thu ngân ở đâu?");
+L(35,"Go straight. It is on your right.","Đi thẳng. Quầy ở bên phải.");
+L(35,"I have an appointment. Where should I go?","Tôi có lịch hẹn. Tôi nên đi đâu?");
+L(35,"Please go to the outpatient department.","Vui lòng đến Khoa Khám bệnh.");
+L(35,"Excuse me. I cannot find the laboratory.","Xin lỗi, tôi không tìm thấy phòng xét nghiệm.");
+L(35,"No problem. Go straight and turn right.","Không sao. Đi thẳng và rẽ phải.");
+L(35,"Is it near the elevator?","Nó có gần thang máy không?");
+L(35,"Yes. It is next to the elevator.","Có. Nó ở cạnh thang máy.");
+
+var BASIC_GROUPS=GROUPS;
+
 
 /* ===== TRẠNG THÁI ===== */
 var KEY="gtbn_progress_v1", prog={};
 try{prog=JSON.parse(localStorage.getItem(KEY)||"{}")||{};}catch(e){prog={};}
+var COURSE='basic';
 function save(){try{localStorage.setItem(KEY,JSON.stringify(prog));}catch(e){}}
 function st(i){return prog[i]||(prog[i]={s:0,k:0,c:0,a:0});}
 function sOf(i){var s=prog[i];return s?s.s:0;}
@@ -490,6 +831,8 @@ function stats(){var l=0,n=0,u=0,c=0,a=0;
 
 var $=function(id){return document.getElementById(id);};
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function kindSent(it){return /[.?!]["”]?\s*$/.test(it.e);}
+function exHas(it){return !!(it.ex&&it.ex.trim());}
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
 
 /* ===== PHÁT ÂM ===== */
@@ -498,6 +841,7 @@ function fallbackListen(t){} /* không mở trang ngoài khi máy không đọc 
 function doSpeak(text,rate){
   if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();
   try{speechSynthesis.resume();}catch(e){}
+  text=String(text).replace(/\s*\/\s*/g,', ').replace(/[–—]/g,' ');
   var u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=rate||.9;
   var vs=speechSynthesis.getVoices()||[];
   var v=vs.filter(function(x){return /en[-_]US/i.test(x.lang);})[0]||vs.filter(function(x){return /^en/i.test(x.lang);})[0];
@@ -523,6 +867,12 @@ function show(name){
 
 /* ===== TRANG CHÍNH ===== */
 function renderHome(){
+  var C=COURSES[COURSE],soon=!!C.soon;
+  Array.prototype.forEach.call(document.querySelectorAll('#ctabs button'),function(b){var on=b.getAttribute('data-c')===COURSE;b.classList.toggle('on',on);b.setAttribute('aria-selected',on);});
+  $('c-title').textContent=C.title;$('c-desc').textContent=C.desc;
+  ['sec-course','sec-route','sec-review','open-list','tools','cta-home'].forEach(function(id){$(id).hidden=soon;});
+  $('sec-soon').hidden=!soon;
+  if(soon)return;
   var s=stats();
   $('t-learned').textContent=s.learned;$('t-learning').textContent=s.learning;
   $('t-acc').textContent=s.acc+'%';$('t-unopened').textContent=s.unopened;
@@ -559,9 +909,9 @@ function renderList(q){
         '<span class="rt"><b>'+esc(it.e)+'</b><small>'+esc(it.m)+'</small></span>'+
         '<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>'+
         '<div class="rowbody pad" hidden>'+(it.ipa?'<span class="ipa">'+esc(it.ipa)+'</span>':'')+
-        '<span class="exen">'+esc(it.ex)+'</span><span class="exvi">'+esc(it.exm)+'</span>'+
-        '<button class="spk" data-say="'+esc(it.e)+'">'+SPK+' Nghe '+(it.t==='P'?'câu':'từ')+'</button>'+
-        '<button class="spk" data-say="'+esc(it.ex)+'">'+SPK+' Nghe ví dụ</button></div></div>';
+        (exHas(it)?'<span class="exen">'+esc(it.ex)+'</span><span class="exvi">'+esc(it.exm)+'</span>':'')+
+        '<button class="spk" data-say="'+esc(it.e)+'">'+SPK+' Nghe '+(kindSent(it)?'câu':'từ')+'</button>'+
+        (exHas(it)?'<button class="spk" data-say="'+esc(it.ex)+'">'+SPK+' Nghe ví dụ</button>':'')+'</div></div>';
     });
     html+='</div>';
   });
@@ -635,12 +985,12 @@ function nextStep(){
 }
 function renderIntro(it){
   $('s-body').innerHTML=
-    '<span class="qlabel new">'+(it.t==='P'?'Câu mới':'Từ mới')+'</span>'+
+    '<span class="qlabel new">'+(kindSent(it)?'Câu mới':'Từ mới')+'</span>'+
     '<div class="qcard"><div class="qen">'+esc(it.e)+'</div>'+(it.ipa?'<span class="ipa">'+esc(it.ipa)+'</span>':'')+
     '<div class="qmean">'+esc(it.m)+'</div>'+
     '<button class="spk" data-say="'+esc(it.e)+'">'+SPK+' Nghe</button>'+
-    '<div class="exbox"><span class="qlabel">Ví dụ</span><span class="exen">'+esc(it.ex)+'</span><span class="exvi">'+esc(it.exm)+'</span>'+
-    '<button class="spk" data-say="'+esc(it.ex)+'">'+SPK+' Nghe ví dụ</button></div></div>';
+    (exHas(it)?'<div class="exbox"><span class="qlabel">Ví dụ</span><span class="exen">'+esc(it.ex)+'</span><span class="exvi">'+esc(it.exm)+'</span>'+
+    '<button class="spk" data-say="'+esc(it.ex)+'">'+SPK+' Nghe ví dụ</button></div>':'')+'</div>';
   $('s-next').textContent='Đã hiểu, làm bài';
   $('s-next').onclick=function(){S.introduced[it.id]=true;var s=st(it.id);if(s.s===0)s.s=1;save();
     renderQuiz(it,S.queue[0]);$('s-cta').hidden=true;window.scrollTo(0,0);};
@@ -648,7 +998,7 @@ function renderIntro(it){
   speak(it.e);
 }
 function pickOptions(it,field){
-  var pool=ITEMS.filter(function(x){return x.t===it.t&&x.id!==it.id&&x[field]!==it[field];});
+  var pool=ITEMS.filter(function(x){return kindSent(x)===kindSent(it)&&x.id!==it.id&&x[field]!==it[field];});
   var seen={};seen[it[field]]=1;var out=[];
   shuffle(pool).forEach(function(x){if(out.length<3&&!seen[x[field]]){seen[x[field]]=1;out.push(x[field]);}});
   return shuffle(out.concat([it[field]]));
@@ -690,8 +1040,8 @@ function answer(it,q,ok,btn,field){
   $('revtxt')&&($('revtxt').hidden=false);
   $('fb').innerHTML='<div class="fb"><span class="head '+(ok?'ok':'bad')+'">'+(ok?(mastered?'Chính xác. Đã thuộc mục này!':'Chính xác!'):'Chưa đúng')+'</span>'+
     '<b>'+esc(it.e)+'</b><span>'+esc(it.m)+'</span>'+(it.ipa?'<span class="ipa">'+esc(it.ipa)+'</span>':'')+
-    '<span class="exen">'+esc(it.ex)+'</span><span class="exvi">'+esc(it.exm)+'</span>'+
-    '<button class="spk" data-say="'+esc(it.ex)+'">'+SPK+' Nghe cả câu</button></div>';
+    (exHas(it)?'<span class="exen">'+esc(it.ex)+'</span><span class="exvi">'+esc(it.exm)+'</span>'+
+    '<button class="spk" data-say="'+esc(it.ex)+'">'+SPK+' Nghe cả câu</button>':'')+'</div>';
   S.queue.shift();
   if(!mastered&&q.req<3){
     var item={id:it.id,req:q.req+1};
@@ -717,6 +1067,26 @@ function finish(){
   $('sum-more').onclick=function(){S=null;renderHome();show('home');openSheet();};
   $('s-cta').hidden=true;show('summary');
 }
+
+/* ===== CÁC KHÓA / TAB ===== */
+var COURSES={
+  basic:{title:'Giao tiếp với bệnh nhân — Cơ bản',desc:$('c-desc').textContent,groups:BASIC_GROUPS,items:ITEMS,keys:['gtbn_progress_v1','gtbn_srs_v1','gtbn_fill_v1']},
+  l1:{title:'Level 1 — Beginner',desc:'Các câu và cụm từ cần học trong 4 bài giảng Level 1: Unit 1 Chào hỏi và giới thiệu bản thân, Unit 2 Số đếm, ngày, giờ và đánh vần, Unit 3 Khoa phòng và khu vực trong bệnh viện, Unit 4 Chỉ đường trong bệnh viện. Gồm '+L1_RAW.length+' mục chia thành '+L1_GROUPS.length+' phần.',groups:L1_GROUPS,items:mkItems(L1_RAW),keys:['gtbn_l1_progress_v1','gtbn_l1_srs_v1','gtbn_l1_fill_v1']},
+  l2:{title:'Level 2',desc:'',groups:[],items:[],keys:['gtbn_l2_progress_v1','gtbn_l2_srs_v1','gtbn_l2_fill_v1'],soon:true}
+};
+function loadJ(k){try{return JSON.parse(localStorage.getItem(k)||"{}")||{};}catch(e){return {};}}
+function setCourse(id){
+  if(!COURSES[id])id='basic';
+  COURSE=id;var C=COURSES[id];
+  GROUPS=C.groups;ITEMS=C.items;KEY=C.keys[0];SKEY=C.keys[1];FKEY=C.keys[2];
+  prog=loadJ(KEY);srs=loadJ(SKEY);fillst=loadJ(FKEY);
+  var ch=false;Object.keys(fillst).forEach(function(k){var x=fillst[k];if(x&&x.w===undefined){x.w=(x.n>0&&!x.s)?1:0;x.k=x.k||0;ch=true;}});if(ch)fsave();
+  scope='all';
+  try{localStorage.setItem('gtbn_course',id);}catch(e){}
+}
+$('ctabs').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
+  var id=b.getAttribute('data-c');if(id===COURSE)return;
+  setCourse(id);renderHome();window.scrollTo(0,0);});
 
 /* ===== ĐẶT LẠI & GIAO DIỆN ===== */
 var armed=false,armT=null;
@@ -776,14 +1146,14 @@ function renderDecks(){
   if(RMODE==='fill'){
     $('srs-intro').textContent=(FLEVEL==='adv'?'Nâng cao · nghe điền câu: nghe câu tiếng Anh rồi gõ lại cả câu. Chỉ cần đúng từ, không cần viết hoa đầu câu hay gõ dấu câu. ':FLEVEL==='tr'?'Nâng cao · dịch Việt sang Anh: đọc câu tiếng Việt rồi gõ câu tiếng Anh. Không cần viết hoa hay dấu câu. Nếu câu của anh khác bản mẫu nhưng vẫn đúng nghĩa, bấm "Câu của tôi cũng đúng". ':'')+(FSCOPE==='wrong'
       ?'Chỉ ôn những từ anh đã làm sai. Một từ rời khỏi danh sách sai khi anh điền đúng 3 lần liên tiếp (không dùng gợi ý). Từ đã tick "Đã thuộc" sẽ không bị hỏi lại.'
-      :'Học cả: hỏi toàn bộ 20 mục của phần, kể cả mục đã tick "Đã thuộc". Mục làm sai sẽ tự vào danh sách "Từ sai" để ôn riêng.');
+      :'Học cả: hỏi toàn bộ các mục của phần, kể cả mục đã tick "Đã thuộc". Mục làm sai sẽ tự vào danh sách "Từ sai" để ôn riêng.');
     $('srs-legend').innerHTML='<span><b class="c-lrn">Số đỏ</b> từ đang sai</span><span><b class="c-rev">Số xanh</b> từ đã tick Đã thuộc</span>';
     GROUPS.forEach(function(gn,gi){var c=fcounts(idsOf(gi));
       html+='<button class="deck" data-g="'+gi+'"><span class="dn">'+esc(gn)+(gi===curGroup()?'<em class="cur">đang học</em>':'')+'</span><span class="cnt">'+cnum(c.w,'c-lrn')+cnum(c.k,'c-rev')+'</span></button>';});
     var ac=fcounts(idsOf('all'));
-    html+='<button class="deck all" data-g="all"><span class="dn">'+(FSCOPE==='wrong'?'Tất cả từ sai của mọi phần':'20 từ yếu nhất từ mọi phần')+'</span><span class="cnt">'+cnum(ac.w,'c-lrn')+cnum(ac.k,'c-rev')+'</span></button>';
+    html+='<button class="deck all" data-g="all"><span class="dn">'+(FSCOPE==='wrong'?'Tất cả từ sai của mọi phần':'20 mục yếu nhất từ mọi phần')+'</span><span class="cnt">'+cnum(ac.w,'c-lrn')+cnum(ac.k,'c-rev')+'</span></button>';
   }else{
-    $('srs-intro').textContent='Mỗi phần 20 thẻ. Xem mặt trước, tự nhớ, bấm hiện đáp án rồi tự chấm. Thẻ nhớ kém sẽ quay lại sớm, thẻ nhớ tốt được giãn ra nhiều ngày sau.';
+    $('srs-intro').textContent='Xem mặt trước, tự nhớ, bấm hiện đáp án rồi tự chấm. Thẻ nhớ kém sẽ quay lại sớm, thẻ nhớ tốt được giãn ra nhiều ngày sau.';
     $('srs-legend').innerHTML='<span><b class="c-new">Xanh dương</b> thẻ mới</span><span><b class="c-lrn">Đỏ</b> đang học</span><span><b class="c-rev">Xanh lá</b> đến hạn ôn</span>';
     GROUPS.forEach(function(gn,gi){var c=counts(idsOf(gi));
       html+='<button class="deck" data-g="'+gi+'"><span class="dn">'+esc(gn)+(gi===curGroup()?'<em class="cur">đang học</em>':'')+'</span><span class="cnt">'+cnum(c.n,'c-new')+cnum(c.l,'c-lrn')+cnum(c.r,'c-rev')+'</span></button>';});
@@ -867,7 +1237,7 @@ function nextCard(){
   R.cur=id;R.shown=false;
   var it=ITEMS[id];
   $('rv-body').innerHTML=topCounts(id)+
-    '<div class="rcard"><span class="qlabel">'+(it.t==='P'?'Câu mẫu':'Từ vựng')+'</span>'+
+    '<div class="rcard"><span class="qlabel">'+(kindSent(it)?'Câu mẫu':'Từ vựng')+'</span>'+
     '<div class="qen">'+esc(it.e)+'</div>'+
     '<button class="spk" data-say="'+esc(it.e)+'">'+SPK+' Nghe</button>'+
     '<div id="rv-back" hidden style="width:100%;display:flex;flex-direction:column;gap:10px;align-items:center"></div></div>';
@@ -883,8 +1253,8 @@ function showAnswer(){
   var back=$('rv-back');
   back.innerHTML='<hr class="rdiv">'+(it.ipa?'<span class="ipa">'+esc(it.ipa)+'</span>':'')+
     '<div class="rmean">'+esc(it.m)+'</div>'+
-    '<div class="exbox"><span class="exen">'+esc(it.ex)+'</span><span class="exvi">'+esc(it.exm)+'</span>'+
-    '<button class="spk" data-say="'+esc(it.ex)+'">'+SPK+' Nghe ví dụ</button></div>';
+    (exHas(it)?'<div class="exbox"><span class="exen">'+esc(it.ex)+'</span><span class="exvi">'+esc(it.exm)+'</span>'+
+    '<button class="spk" data-say="'+esc(it.ex)+'">'+SPK+' Nghe ví dụ</button></div>':'');
   back.hidden=false;
   var lab=['Lại','Khó','Tốt','Dễ'],cls=['g-again','g-hard','g-good','g-easy'],h='<div class="grades">';
   for(var g=1;g<=4;g++){var nc=schedule(c,g,now);
@@ -1105,6 +1475,8 @@ $('f-body').addEventListener('change',function(e){if(!F||e.target.id!=='f-known'
 $('f-body').addEventListener('keydown',function(e){if(!F||e.key!=='Enter'||e.target.tagName==='BUTTON'||e.target.id==='f-known')return;e.preventDefault();if(!F.done)fCheck();});
 $('f-close').addEventListener('click',function(){F=null;renderHome();show('home');});
 
+var c0='basic';try{c0=localStorage.getItem('gtbn_course')||'basic';}catch(e){}
+setCourse(c0);
 renderHome();
 })();
 </script>
