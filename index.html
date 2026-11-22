@@ -173,6 +173,12 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .fans{font-size:1.15rem;line-height:1.6;font-weight:600}
 .fvihide{color:var(--muted);font-size:.95rem;font-style:italic}
 .route{display:flex;flex-direction:column;gap:8px}
+.rt-row.unit{cursor:pointer;-webkit-user-select:none;user-select:none}
+.rt-row.sub{margin-left:20px;padding:10px 12px}
+.uchev{flex:none;transition:transform .2s;color:var(--muted)}
+.rt-row.open .uchev,.deck.open .uchev{transform:rotate(90deg)}
+.deck.unit{background:var(--tile)}
+.deck.sub{padding-left:30px}
 .rt-row{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--surface)}
 .rt-row.cur{border:2px solid var(--blue);background:var(--soft-blue)}
 .rt-n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--tile);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem}
@@ -242,11 +248,6 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
       <button class="ibtn r" id="theme" aria-label="Đổi giao diện sáng/tối"></button>
     </div>
     <div class="ctabs pad" id="ctabs" role="tablist"><button data-c="basic" role="tab">Giao tiếp cơ bản</button><button data-c="l1" role="tab">Level 1</button><button data-c="l2" role="tab">Level 2</button></div>
-
-    <div class="sec pad">
-      <h2>Khóa học ngắn là gì?</h2>
-      <p>Khóa học mini gom thuật ngữ và câu mẫu của một chủ đề cụ thể để bạn học tập trung. Học đúng nhóm từ hay dùng nhất giúp vốn từ tăng nhanh hơn học dàn trải.</p>
-    </div>
 
     <div class="sec pad" id="sec-course">
       <h2 id="c-title">Giao tiếp với bệnh nhân — Cơ bản</h2>
@@ -883,15 +884,34 @@ function renderHome(){
 function groupLearned(gi){var all=ITEMS.filter(function(it){return it.g===gi;});
   return {n:all.filter(function(it){return sOf(it.id)===2;}).length,t:all.length};}
 function curGroup(){for(var gi=0;gi<GROUPS.length;gi++){var c=groupLearned(gi);if(c.n<c.t)return gi;}return -1;}
+var OPENU={};
+var UNIT_TITLES={U1:'Unit 1 · Chào hỏi & giới thiệu',U2:'Unit 2 · Số, ngày, giờ & đánh vần',U3:'Unit 3 · Khoa phòng & khu vực',U4:'Unit 4 · Chỉ đường trong bệnh viện'};
+var CHEV='<svg class="uchev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+function unitKey(gn){var m=/^(U\d+) · /.exec(gn);return m?m[1]:null;}
+function plainName(gn){return gn.replace(/^U\d+ · /,'');}
+function unitGroups(){var out=[],map={};
+  for(var gi=0;gi<GROUPS.length;gi++){var k=unitKey(GROUPS[gi]);if(!k)return null;
+    if(!map[k]){map[k]={k:k,title:UNIT_TITLES[k]||k,gis:[]};out.push(map[k]);}map[k].gis.push(gi);}
+  return out.length?out:null;}
+function routeRow(gi,cg,sub){var c=groupLearned(gi),done=c.n>=c.t,cur=gi===cg;
+  return '<div class="rt-row'+(sub?' sub':'')+(cur?' cur':'')+(done?' fin2':'')+'"><span class="rt-n">'+(done?'✓':(gi+1))+'</span><div class="rt-main"><div class="rt-top2"><span class="rt-name">'+esc(sub?plainName(GROUPS[gi]):GROUPS[gi])+'</span>'+(cur?'<span class="pill">Đang học</span>':'')+'</div>'+
+    '<div class="rt-bar"><i style="width:'+Math.round(100*c.n/c.t)+'%"></i></div></div><span class="rt-cnt">'+c.n+'/'+c.t+'</span></div>';}
 function renderRoute(){
-  var el=$('route');if(!el)return;var cg=curGroup(),html='';
-  GROUPS.forEach(function(gn,gi){var c=groupLearned(gi),done=c.n>=c.t,cur=gi===cg;
-    html+='<div class="rt-row'+(cur?' cur':'')+(done?' fin2':'')+'"><span class="rt-n">'+(done?'✓':(gi+1))+'</span><div class="rt-main"><div class="rt-top2"><span class="rt-name">'+esc(gn)+'</span>'+(cur?'<span class="pill">Đang học</span>':'')+'</div>'+
-      '<div class="rt-bar"><i style="width:'+Math.round(100*c.n/c.t)+'%"></i></div></div><span class="rt-cnt">'+c.n+'/'+c.t+'</span></div>';});
+  var el=$('route');if(!el)return;var cg=curGroup(),html='',ug=unitGroups();
+  if(!ug){GROUPS.forEach(function(gn,gi){html+=routeRow(gi,cg,false);});}
+  else ug.forEach(function(u){
+    var n=0,t=0;u.gis.forEach(function(gi){var c=groupLearned(gi);n+=c.n;t+=c.t;});
+    var cur=u.gis.indexOf(cg)>-1,done=n>=t,open=!!OPENU['r'+u.k];
+    html+='<div class="rt-row unit'+(cur?' cur':'')+(done?' fin2':'')+(open?' open':'')+'" data-u="'+u.k+'" role="button" aria-expanded="'+open+'"><span class="rt-n">'+(done?'✓':u.k.slice(1))+'</span><div class="rt-main"><div class="rt-top2"><span class="rt-name">'+esc(u.title)+'</span>'+(cur?'<span class="pill">Đang học</span>':'')+'</div>'+
+      '<div class="rt-bar"><i style="width:'+Math.round(100*n/t)+'%"></i></div></div><span class="rt-cnt">'+n+'/'+t+'</span>'+CHEV+'</div>';
+    if(open)u.gis.forEach(function(gi){html+=routeRow(gi,cg,true);});
+  });
   el.innerHTML=html;
   if(cg<0)$('route-now').textContent='Anh đã học xong cả '+GROUPS.length+' phần. Chuyển sang ôn tập để giữ trí nhớ.';
   else{var c=groupLearned(cg);$('route-now').textContent='Đang học: Phần '+(cg+1)+' trong '+GROUPS.length+' — '+GROUPS[cg]+' ('+c.n+'/'+c.t+' mục đã học). Mỗi phần xong khi cả '+c.t+' mục ở mức "Đã học".';}
 }
+$('route').addEventListener('click',function(e){var r=e.target.closest('.rt-row.unit');if(!r)return;
+  var k='r'+r.getAttribute('data-u');OPENU[k]=!OPENU[k];renderRoute();});
 
 /* ===== DANH SÁCH THUẬT NGỮ ===== */
 function renderList(q){
@@ -1081,7 +1101,7 @@ function setCourse(id){
   GROUPS=C.groups;ITEMS=C.items;KEY=C.keys[0];SKEY=C.keys[1];FKEY=C.keys[2];
   prog=loadJ(KEY);srs=loadJ(SKEY);fillst=loadJ(FKEY);
   var ch=false;Object.keys(fillst).forEach(function(k){var x=fillst[k];if(x&&x.w===undefined){x.w=(x.n>0&&!x.s)?1:0;x.k=x.k||0;ch=true;}});if(ch)fsave();
-  scope='all';
+  scope='all';OPENU={};
   try{localStorage.setItem('gtbn_course',id);}catch(e){}
 }
 $('ctabs').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
@@ -1135,6 +1155,15 @@ function isKnown(id){var x=fillst[sk(id)];return !!(x&&x.k);}
 function isWeak(id){var x=fillst[sk(id)];return !!(x&&x.w&&!x.k);}
 function fcnt(id){var x=fillst[sk(id)];return (x&&x.s)||0;}
 function fcounts(ids){var w=0,k=0;ids.forEach(function(id){if(isWeak(id))w++;if(isKnown(id))k++;});return {w:w,k:k};}
+function deckRow(gi,cntFn,sub){return '<button class="deck'+(sub?' sub':'')+'" data-g="'+gi+'"><span class="dn">'+esc(sub?plainName(GROUPS[gi]):GROUPS[gi])+(gi===curGroup()?'<em class="cur">đang học</em>':'')+'</span><span class="cnt">'+cntFn(idsOf(gi))+'</span></button>';}
+function deckGroups(cntFn){
+  var ug=unitGroups(),h='';
+  if(!ug){GROUPS.forEach(function(gn,gi){h+=deckRow(gi,cntFn,false);});return h;}
+  var cg=curGroup();
+  ug.forEach(function(u){var ids=[];u.gis.forEach(function(gi){ids=ids.concat(idsOf(gi));});var open=!!OPENU['d'+u.k];
+    h+='<button class="deck unit'+(open?' open':'')+'" data-u="'+u.k+'" aria-expanded="'+open+'"><span class="dn">'+esc(u.title)+(u.gis.indexOf(cg)>-1?'<em class="cur">đang học</em>':'')+'</span><span class="cnt">'+cntFn(ids)+'</span>'+CHEV+'</button>';
+    if(open)u.gis.forEach(function(gi){h+=deckRow(gi,cntFn,true);});});
+  return h;}
 function renderDecks(){
   var el=$('decks');if(!el)return;
   Array.prototype.forEach.call(document.querySelectorAll('#rmode button'),function(b){b.classList.toggle('on',b.getAttribute('data-m')===RMODE);});
@@ -1148,15 +1177,13 @@ function renderDecks(){
       ?'Chỉ ôn những từ anh đã làm sai. Một từ rời khỏi danh sách sai khi anh điền đúng 3 lần liên tiếp (không dùng gợi ý). Từ đã tick "Đã thuộc" sẽ không bị hỏi lại.'
       :'Học cả: hỏi toàn bộ các mục của phần, kể cả mục đã tick "Đã thuộc". Mục làm sai sẽ tự vào danh sách "Từ sai" để ôn riêng.');
     $('srs-legend').innerHTML='<span><b class="c-lrn">Số đỏ</b> từ đang sai</span><span><b class="c-rev">Số xanh</b> từ đã tick Đã thuộc</span>';
-    GROUPS.forEach(function(gn,gi){var c=fcounts(idsOf(gi));
-      html+='<button class="deck" data-g="'+gi+'"><span class="dn">'+esc(gn)+(gi===curGroup()?'<em class="cur">đang học</em>':'')+'</span><span class="cnt">'+cnum(c.w,'c-lrn')+cnum(c.k,'c-rev')+'</span></button>';});
+    html+=deckGroups(function(ids){var c=fcounts(ids);return cnum(c.w,'c-lrn')+cnum(c.k,'c-rev');});
     var ac=fcounts(idsOf('all'));
     html+='<button class="deck all" data-g="all"><span class="dn">'+(FSCOPE==='wrong'?'Tất cả từ sai của mọi phần':'20 mục yếu nhất từ mọi phần')+'</span><span class="cnt">'+cnum(ac.w,'c-lrn')+cnum(ac.k,'c-rev')+'</span></button>';
   }else{
     $('srs-intro').textContent='Xem mặt trước, tự nhớ, bấm hiện đáp án rồi tự chấm. Thẻ nhớ kém sẽ quay lại sớm, thẻ nhớ tốt được giãn ra nhiều ngày sau.';
     $('srs-legend').innerHTML='<span><b class="c-new">Xanh dương</b> thẻ mới</span><span><b class="c-lrn">Đỏ</b> đang học</span><span><b class="c-rev">Xanh lá</b> đến hạn ôn</span>';
-    GROUPS.forEach(function(gn,gi){var c=counts(idsOf(gi));
-      html+='<button class="deck" data-g="'+gi+'"><span class="dn">'+esc(gn)+(gi===curGroup()?'<em class="cur">đang học</em>':'')+'</span><span class="cnt">'+cnum(c.n,'c-new')+cnum(c.l,'c-lrn')+cnum(c.r,'c-rev')+'</span></button>';});
+    html+=deckGroups(function(ids){var c=counts(ids);return cnum(c.n,'c-new')+cnum(c.l,'c-lrn')+cnum(c.r,'c-rev');});
     var a=counts(idsOf('all'));
     html+='<button class="deck all" data-g="all"><span class="dn">Ôn tất cả các phần</span><span class="cnt">'+cnum(a.n,'c-new')+cnum(a.l,'c-lrn')+cnum(a.r,'c-rev')+'</span></button>';
   }
@@ -1171,6 +1198,7 @@ $('fscope').addEventListener('click',function(e){var b=e.target.closest('button'
 $('rmode').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
   RMODE=b.getAttribute('data-m')==='fill'?'fill':'anki';try{localStorage.setItem('gtbn_rmode',RMODE);}catch(x){}renderDecks();});
 $('decks').addEventListener('click',function(e){var b=e.target.closest('.deck');if(!b)return;
+  var uk=b.getAttribute('data-u');if(uk){OPENU['d'+uk]=!OPENU['d'+uk];renderDecks();return;}
   var g=b.getAttribute('data-g');g=(g==='all'?'all':parseInt(g,10));
   if(RMODE==='fill')startFill(g);else startReview(g);});
 
