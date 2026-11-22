@@ -816,6 +816,212 @@ L(35,"No problem. Go straight and turn right.","Không sao. Đi thẳng và rẽ
 L(35,"Is it near the elevator?","Nó có gần thang máy không?");
 L(35,"Yes. It is next to the elevator.","Có. Nó ở cạnh thang máy.");
 
+/* ===== LEVEL 2: 3 bài giảng Unit 1–3 (file PPTX) ===== */
+var L2_GROUPS=["U1 · Khoa thường gặp", "U1 · Các khoa khác trên biển chỉ dẫn", "U1 · Cận lâm sàng & hỗ trợ", "U1 · Khu vực chức năng", "U1 · Địa điểm hữu ích", "U1 · Hỏi vị trí", "U1 · Chỉ đường", "U1 · Tầng & vị trí", "U1 · Mẫu câu hữu ích", "U1 · Hội thoại thực hành", "U2 · Chủ động đề nghị hỗ trợ", "U2 · Tìm hiểu nhu cầu người bệnh", "U2 · Làm rõ nhu cầu", "U2 · Nhu cầu thường gặp (từ vựng)", "U2 · Nhu cầu thường gặp (bệnh nhân nói)", "U2 · Lắng nghe thông tin chính", "U2 · Xác nhận đã hiểu đúng", "U2 · Phản hồi & bước tiếp theo", "U2 · Đồng cảm & trấn an", "U2 · Quy trình giao tiếp 4 bước", "U2 · Hội thoại mẫu tại quầy tiếp đón", "U3 · Dấu hiệu sinh tồn", "U3 · Huyết áp", "U3 · Mạch / nhịp tim", "U3 · Thân nhiệt", "U3 · Nhịp thở & độ bão hòa oxy", "U3 · Thang điểm đau", "U3 · Trước khi đo chỉ số", "U3 · Thông báo kết quả đo", "U3 · Hỏi lại & xác nhận con số", "U3 · Hội thoại mẫu đo dấu hiệu sinh tồn"];
+var L2_RAW=[];
+function M(g,e,m){L2_RAW.push([g,'P',e,'',m,'','']);}
+/* U1 · Khoa thường gặp */
+M(0,"Pharmacy","Nhà thuốc");
+M(0,"Laboratory","Phòng xét nghiệm");
+M(0,"Emergency","Cấp cứu");
+M(0,"Radiology","Chẩn đoán hình ảnh");
+M(0,"Outpatient Department (OPD)","Khoa Khám bệnh");
+M(0,"Pharmacy Department","Khoa Dược / Nhà thuốc");
+M(0,"General Surgery Department","Khoa Ngoại tổng hợp");
+/* U1 · Các khoa khác trên biển chỉ dẫn */
+M(1,"General Internal Medicine","Khoa Nội tổng hợp");
+M(1,"Cardiology","Khoa Tim mạch");
+M(1,"Neurology and Stroke","Khoa Thần kinh đột quỵ");
+M(1,"Orthopedics","Khoa Chấn thương chỉnh hình");
+M(1,"Dentistry","Khoa Răng hàm mặt");
+M(1,"ENT (Ear, Nose and Throat)","Tai Mũi Họng");
+/* U1 · Cận lâm sàng & hỗ trợ */
+M(2,"Customer Care Department","Phòng Chăm sóc khách hàng");
+M(2,"Ultrasound Room","Phòng siêu âm");
+M(2,"Endoscopy Department","Khoa Nội soi");
+M(2,"X-ray / CT Scan / MRI Room","Phòng chụp X-quang / cắt lớp vi tính / cộng hưởng từ");
+M(2,"Rehabilitation Department","Khoa Phục hồi chức năng");
+/* U1 · Khu vực chức năng */
+M(3,"Reception","Quầy tiếp đón");
+M(3,"Registration Desk","Quầy đăng ký");
+M(3,"Waiting Area","Khu vực chờ");
+M(3,"Cashier","Quầy thu ngân");
+M(3,"Consultation Room / Clinic","Phòng khám");
+M(3,"Procedure Room","Phòng thủ thuật");
+M(3,"Patient Room","Phòng bệnh");
+M(3,"Restroom / Toilet","Nhà vệ sinh");
+/* U1 · Địa điểm hữu ích */
+M(4,"Main Entrance","Cửa chính");
+M(4,"Exit","Lối ra");
+M(4,"Elevator / Lift","Thang máy");
+M(4,"Stairs","Cầu thang bộ");
+M(4,"Escalator","Thang cuốn");
+M(4,"Cafeteria","Nhà ăn / Căng tin");
+M(4,"International Medical Center","Phòng khám quốc tế");
+/* U1 · Hỏi vị trí */
+M(5,"Where is the pharmacy?","Nhà thuốc ở đâu?");
+M(5,"Where is the laboratory?","Phòng xét nghiệm ở đâu?");
+M(5,"Where is the restroom?","Nhà vệ sinh ở đâu?");
+M(5,"Where is the consultation room?","Phòng khám ở đâu?");
+/* U1 · Chỉ đường */
+M(6,"Go straight.","Đi thẳng.");
+M(6,"Turn left.","Rẽ trái.");
+M(6,"Turn right.","Rẽ phải.");
+M(6,"It is on your left.","Ở bên trái của bạn.");
+M(6,"It is on your right.","Ở bên phải của bạn.");
+M(6,"Take the elevator to the second floor.","Đi thang máy lên tầng 2.");
+/* U1 · Tầng & vị trí */
+M(7,"Ground floor / First floor","Tầng trệt / tầng 1");
+M(7,"Downstairs","Ở tầng dưới");
+M(7,"Second floor","Tầng 2");
+M(7,"Upstairs","Ở tầng trên");
+M(7,"Third floor","Tầng 3");
+M(7,"Next to","Bên cạnh");
+M(7,"Opposite","Đối diện");
+M(7,"Near","Gần");
+/* U1 · Mẫu câu hữu ích */
+M(8,"The pharmacy is on the first floor.","Nhà thuốc ở tầng 1.");
+M(8,"The laboratory is next to the Intensive Care Unit.","Khoa xét nghiệm ở cạnh đơn vị Hồi sức tích cực.");
+M(8,"Please go to the reception.","Vui lòng đến quầy tiếp đón.");
+M(8,"The doctor will see you in the consultation room.","Bác sĩ sẽ khám cho bạn tại phòng khám.");
+/* U1 · Hội thoại thực hành */
+M(9,"Excuse me. Where is the pharmacy?","Xin lỗi, nhà thuốc ở đâu?");
+M(9,"It is on the first floor.","Nó ở tầng 1.");
+M(9,"Go straight and turn right.","Đi thẳng và rẽ phải.");
+M(9,"No problem.","Không có gì.");
+M(9,"I need a blood test.","Tôi cần xét nghiệm máu.");
+M(9,"Please go to the laboratory.","Vui lòng đến phòng xét nghiệm.");
+M(9,"Where is it?","Nó ở đâu?");
+M(9,"It is on the second floor, opposite the ENT clinic.","Nó ở tầng 2, đối diện phòng khám Tai Mũi Họng.");
+M(9,"Thank you.","Cảm ơn.");
+M(9,"You're welcome.","Không có gì.");
+/* U2 · Chủ động đề nghị hỗ trợ */
+M(10,"How can I help you?","Tôi có thể giúp gì cho anh/chị?");
+M(10,"Would you like some help?","Anh/chị có cần hỗ trợ không?");
+M(10,"Can I help you with anything?","Tôi có thể hỗ trợ anh/chị việc gì không?");
+M(10,"May I assist you?","Tôi có thể hỗ trợ anh/chị được không?");
+M(10,"Let me help you with that.","Để tôi hỗ trợ anh/chị việc đó.");
+M(10,"Is there anything else you need?","Anh/chị còn cần hỗ trợ gì khác không?");
+/* U2 · Tìm hiểu nhu cầu người bệnh */
+M(11,"What brings you here today?","Hôm nay anh/chị đến khám vì vấn đề gì?");
+M(11,"How can we help you today?","Hôm nay chúng tôi có thể hỗ trợ gì cho anh/chị?");
+M(11,"What would you like assistance with?","Anh/chị muốn được hỗ trợ về vấn đề gì?");
+M(11,"Are you here for an appointment?","Anh/chị đến khám theo lịch hẹn phải không?");
+M(11,"Which department are you looking for?","Anh/chị đang tìm khoa nào?");
+M(11,"Is this your first visit to our hospital?","Đây có phải lần đầu anh/chị đến bệnh viện chúng tôi không?");
+/* U2 · Làm rõ nhu cầu */
+M(12,"Could you tell me a little more?","Anh/chị có thể nói rõ hơn một chút không?");
+M(12,"When did the problem start?","Vấn đề bắt đầu từ khi nào?");
+M(12,"Where would you like to go?","Anh/chị muốn đến đâu?");
+M(12,"Do you have an appointment confirmation?","Anh/chị có thông tin xác nhận lịch hẹn không?");
+M(12,"Are you asking about the consultation or the test?","Anh/chị đang hỏi về buổi khám hay xét nghiệm?");
+M(12,"Let me check that for you.","Để tôi kiểm tra thông tin đó giúp anh/chị.");
+/* U2 · Nhu cầu thường gặp (từ vựng) */
+M(13,"Appointment","Đặt lịch / xác nhận lịch hẹn");
+M(13,"Registration","Đăng ký khám");
+M(13,"Medical consultation","Khám bác sĩ");
+M(13,"Tests and procedures","Xét nghiệm / chẩn đoán hình ảnh");
+M(13,"Payment and insurance","Thanh toán / bảo hiểm");
+M(13,"Directions and facilities","Tìm khoa/phòng / tiện ích");
+/* U2 · Nhu cầu thường gặp (bệnh nhân nói) */
+M(14,"I have an appointment.","Tôi có lịch hẹn.");
+M(14,"I need to register.","Tôi cần đăng ký khám.");
+M(14,"I would like to see a doctor.","Tôi muốn gặp bác sĩ.");
+M(14,"I need to have a blood test.","Tôi cần xét nghiệm máu.");
+M(14,"Where can I pay?","Tôi có thể thanh toán ở đâu?");
+/* U2 · Lắng nghe thông tin chính */
+M(15,"Who needs help?","Ai là người cần hỗ trợ?");
+M(15,"What does the patient need?","Người bệnh cần gì?");
+M(15,"Which department or service?","Khoa/phòng hoặc dịch vụ nào?");
+M(15,"Is there an appointment or a specific time?","Có lịch hẹn hoặc thời gian cụ thể không?");
+/* U2 · Xác nhận đã hiểu đúng */
+M(16,"So, you need to see a cardiologist, correct?","Vậy anh/chị cần gặp bác sĩ tim mạch, đúng không ạ?");
+M(16,"Just to confirm, your appointment is at 10 a.m.","Xin xác nhận, lịch hẹn của anh/chị lúc 10 giờ sáng.");
+M(16,"You are here for a blood test, right?","Anh/chị đến để xét nghiệm máu, đúng không ạ?");
+M(16,"Let me make sure I understand.","Để tôi chắc chắn rằng mình đã hiểu đúng.");
+M(16,"You would like help with registration.","Anh/chị muốn được hỗ trợ đăng ký khám.");
+M(16,"Have I understood you correctly?","Tôi hiểu đúng ý anh/chị chưa ạ?");
+/* U2 · Phản hồi & bước tiếp theo */
+M(17,"I'll check that for you.","Tôi sẽ kiểm tra thông tin đó giúp anh/chị.");
+M(17,"Please wait a moment.","Vui lòng chờ trong giây lát.");
+M(17,"I'll contact the relevant department.","Tôi sẽ liên hệ bộ phận liên quan.");
+M(17,"I'll ask a nurse to assist you.","Tôi sẽ nhờ điều dưỡng hỗ trợ anh/chị.");
+M(17,"Please have a seat. Someone will be with you shortly.","Vui lòng ngồi chờ. Nhân viên sẽ hỗ trợ anh/chị sớm.");
+M(17,"I'll show you where to go.","Tôi sẽ chỉ anh/chị đến đúng địa điểm.");
+/* U2 · Đồng cảm & trấn an */
+M(18,"I understand your concern.","Tôi hiểu sự lo lắng của anh/chị.");
+M(18,"I'm sorry for the inconvenience.","Tôi rất tiếc vì sự bất tiện này.");
+M(18,"Let me see how I can help.","Để tôi xem mình có thể hỗ trợ thế nào.");
+M(18,"I'll find the right person to assist you.","Tôi sẽ tìm đúng người/bộ phận để hỗ trợ anh/chị.");
+/* U2 · Quy trình giao tiếp 4 bước */
+M(19,"Offer help","Chủ động đề nghị hỗ trợ");
+M(19,"Identify","Tìm hiểu nhu cầu");
+M(19,"Clarify","Hỏi lại và xác nhận");
+M(19,"Respond","Phản hồi và hướng dẫn");
+/* U2 · Hội thoại mẫu tại quầy tiếp đón */
+M(20,"Good morning. How can I help you today?","Xin chào. Hôm nay tôi có thể hỗ trợ gì cho anh/chị?");
+M(20,"I have an appointment, but I'm not sure where to go.","Tôi có lịch hẹn nhưng không chắc phải đến đâu.");
+M(20,"Certainly. Which doctor are you seeing?","Vâng ạ. Anh/chị có lịch khám với bác sĩ nào?");
+M(20,"Dr. Nguyen, in the Cardiology Department.","Bác sĩ Nguyễn, tại Khoa Tim mạch.");
+M(20,"Let me check. Your appointment is at 9:30 a.m., correct?","Để tôi kiểm tra. Lịch hẹn lúc 9:30 sáng, đúng không ạ?");
+M(20,"Yes, that's right.","Vâng, đúng rồi.");
+M(20,"Thank you. I'll show you where to go.","Cảm ơn anh/chị. Tôi sẽ chỉ anh/chị đến đúng địa điểm.");
+/* U3 · Dấu hiệu sinh tồn */
+M(21,"Blood pressure (BP)","Huyết áp");
+M(21,"Pulse / Heart rate (HR)","Mạch / Nhịp tim");
+M(21,"Body temperature","Thân nhiệt");
+M(21,"Respiratory rate (RR)","Nhịp thở");
+M(21,"Oxygen saturation (SpO2)","Độ bão hòa oxy máu");
+M(21,"Pain score","Mức độ đau");
+/* U3 · Huyết áp */
+M(22,"Systolic pressure","Huyết áp tâm thu (số trên), ví dụ 120 mmHg");
+M(22,"Diastolic pressure","Huyết áp tâm trương (số dưới), ví dụ 80 mmHg");
+M(22,"One twenty over eighty.","120/80 mmHg");
+M(22,"Have you had your blood pressure checked today?","Hôm nay bạn đã được đo huyết áp chưa?");
+/* U3 · Mạch / nhịp tim */
+M(23,"beats per minute (bpm)","lần/phút");
+M(23,"I'm going to check your pulse.","Tôi sẽ kiểm tra mạch của bạn.");
+M(23,"Your pulse is 78 beats per minute.","Mạch của bạn là 78 lần/phút.");
+/* U3 · Thân nhiệt */
+M(24,"degrees Celsius","độ C (°C)");
+M(24,"Your temperature is 36.8 degrees Celsius.","Thân nhiệt của bạn là 36,8 độ C.");
+M(24,"Do you feel feverish?","Bạn có cảm thấy sốt không?");
+M(24,"Are you having a fever?","Bạn có đang sốt không?");
+M(24,"I'm going to take your temperature.","Tôi sẽ đo thân nhiệt.");
+M(24,"thirty-six point eight degrees Celsius","36.8°C (dùng “point” để đọc phần thập phân)");
+/* U3 · Nhịp thở & độ bão hòa oxy */
+M(25,"breaths per minute","lần thở/phút");
+M(25,"Your respiratory rate is 18 breaths per minute.","Nhịp thở của bạn là 18 lần/phút.");
+M(25,"I'm going to check your oxygen level.","Tôi sẽ kiểm tra nồng độ oxy của bạn.");
+M(25,"percent","phần trăm (%)");
+/* U3 · Thang điểm đau */
+M(26,"On a scale of 0 to 10, how bad is your pain?","Theo thang điểm từ 0 đến 10, bạn đau ở mức nào?");
+M(26,"No pain","Không đau (0)");
+M(26,"Moderate pain","Đau vừa (5)");
+M(26,"Worst pain imaginable","Đau dữ dội nhất có thể tưởng tượng (10)");
+/* U3 · Trước khi đo chỉ số */
+M(27,"May I check your vital signs?","Tôi có thể kiểm tra dấu hiệu sinh tồn của bạn không?");
+M(27,"I'll measure your blood pressure and temperature.","Tôi sẽ đo huyết áp và thân nhiệt của bạn.");
+M(27,"Please relax your arm.","Vui lòng thả lỏng cánh tay.");
+M(27,"Are you comfortable?","Bạn có thấy thoải mái không?");
+M(27,"I'll check your blood pressure.","Tôi sẽ đo huyết áp của bạn.");
+/* U3 · Thông báo kết quả đo */
+M(28,"Your blood pressure is 120 over 80.","Huyết áp của bạn là 120/80.");
+M(28,"Your temperature is 37 degrees Celsius.","Thân nhiệt của bạn là 37°C.");
+M(28,"Your oxygen saturation is 98 percent.","Độ bão hòa oxy của bạn là 98%.");
+/* U3 · Hỏi lại & xác nhận con số */
+M(29,"Sorry, could you repeat that number?","Xin lỗi, bạn có thể nhắc lại con số đó không?");
+M(29,"Did you say ninety-six percent?","Bạn vừa nói 96% đúng không?");
+M(29,"Is that degrees Celsius?","Đó là độ C phải không?");
+M(29,"Let me read that back: 120 over 80.","Để tôi đọc lại: 120/80.");
+M(29,"I heard 37.8 degrees. Is that correct?","Tôi nghe là 37,8 độ. Có đúng không?");
+/* U3 · Hội thoại mẫu đo dấu hiệu sinh tồn */
+M(30,"Good morning. I'm going to check your vital signs.","Chào buổi sáng. Tôi sẽ kiểm tra dấu hiệu sinh tồn của bạn.");
+M(30,"Of course. What will you check?","Vâng. Cô/anh sẽ kiểm tra những gì ạ?");
+M(30,"I'll measure your blood pressure, pulse and temperature.","Tôi sẽ đo huyết áp, mạch và thân nhiệt của bạn.");
+M(30,"May I put this cuff around your arm?","Tôi có thể quấn băng đo này quanh cánh tay bạn không?");
+M(30,"Yes, that's fine.","Vâng, được ạ.");
+M(30,"Thank you. Your blood pressure is 120 over 80, and your pulse is 78.","Cảm ơn bạn. Huyết áp của bạn là 120/80 và mạch là 78.");
 var BASIC_GROUPS=GROUPS;
 
 
@@ -885,13 +1091,12 @@ function groupLearned(gi){var all=ITEMS.filter(function(it){return it.g===gi;});
   return {n:all.filter(function(it){return sOf(it.id)===2;}).length,t:all.length};}
 function curGroup(){for(var gi=0;gi<GROUPS.length;gi++){var c=groupLearned(gi);if(c.n<c.t)return gi;}return -1;}
 var OPENU={};
-var UNIT_TITLES={U1:'Unit 1 · Chào hỏi & giới thiệu',U2:'Unit 2 · Số, ngày, giờ & đánh vần',U3:'Unit 3 · Khoa phòng & khu vực',U4:'Unit 4 · Chỉ đường trong bệnh viện'};
 var CHEV='<svg class="uchev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
 function unitKey(gn){var m=/^(U\d+) · /.exec(gn);return m?m[1]:null;}
 function plainName(gn){return gn.replace(/^U\d+ · /,'');}
 function unitGroups(){var out=[],map={};
   for(var gi=0;gi<GROUPS.length;gi++){var k=unitKey(GROUPS[gi]);if(!k)return null;
-    if(!map[k]){map[k]={k:k,title:UNIT_TITLES[k]||k,gis:[]};out.push(map[k]);}map[k].gis.push(gi);}
+    if(!map[k]){map[k]={k:k,title:((COURSES[COURSE].units||{})[k])||k,gis:[]};out.push(map[k]);}map[k].gis.push(gi);}
   return out.length?out:null;}
 function routeRow(gi,cg,sub){var c=groupLearned(gi),done=c.n>=c.t,cur=gi===cg;
   return '<div class="rt-row'+(sub?' sub':'')+(cur?' cur':'')+(done?' fin2':'')+'"><span class="rt-n">'+(done?'✓':(gi+1))+'</span><div class="rt-main"><div class="rt-top2"><span class="rt-name">'+esc(sub?plainName(GROUPS[gi]):GROUPS[gi])+'</span>'+(cur?'<span class="pill">Đang học</span>':'')+'</div>'+
@@ -1091,8 +1296,8 @@ function finish(){
 /* ===== CÁC KHÓA / TAB ===== */
 var COURSES={
   basic:{title:'Giao tiếp với bệnh nhân — Cơ bản',desc:$('c-desc').textContent,groups:BASIC_GROUPS,items:ITEMS,keys:['gtbn_progress_v1','gtbn_srs_v1','gtbn_fill_v1']},
-  l1:{title:'Level 1 — Beginner',desc:'Các câu và cụm từ cần học trong 4 bài giảng Level 1: Unit 1 Chào hỏi và giới thiệu bản thân, Unit 2 Số đếm, ngày, giờ và đánh vần, Unit 3 Khoa phòng và khu vực trong bệnh viện, Unit 4 Chỉ đường trong bệnh viện. Gồm '+L1_RAW.length+' mục chia thành '+L1_GROUPS.length+' phần.',groups:L1_GROUPS,items:mkItems(L1_RAW),keys:['gtbn_l1_progress_v1','gtbn_l1_srs_v1','gtbn_l1_fill_v1']},
-  l2:{title:'Level 2',desc:'',groups:[],items:[],keys:['gtbn_l2_progress_v1','gtbn_l2_srs_v1','gtbn_l2_fill_v1'],soon:true}
+  l1:{title:'Level 1 — Beginner',desc:'Các câu và cụm từ cần học trong 4 bài giảng Level 1: Unit 1 Chào hỏi và giới thiệu bản thân, Unit 2 Số đếm, ngày, giờ và đánh vần, Unit 3 Khoa phòng và khu vực trong bệnh viện, Unit 4 Chỉ đường trong bệnh viện. Gồm '+L1_RAW.length+' mục chia thành '+L1_GROUPS.length+' phần.',groups:L1_GROUPS,items:mkItems(L1_RAW),units:{U1:'Unit 1 · Chào hỏi & giới thiệu',U2:'Unit 2 · Số, ngày, giờ & đánh vần',U3:'Unit 3 · Khoa phòng & khu vực',U4:'Unit 4 · Chỉ đường trong bệnh viện'},keys:['gtbn_l1_progress_v1','gtbn_l1_srs_v1','gtbn_l1_fill_v1']},
+  l2:{title:'Level 2 — Elementary',desc:'Các câu và cụm từ cần học trong 3 bài giảng Level 2: Unit 1 Khoa phòng và khu vực chức năng, Unit 2 Đề nghị hỗ trợ và xác định nhu cầu của người bệnh, Unit 3 Dấu hiệu sinh tồn và các chỉ số cơ bản. Gồm '+L2_RAW.length+' mục chia thành '+L2_GROUPS.length+' phần.',groups:L2_GROUPS,items:mkItems(L2_RAW),units:{U1:'Unit 1 · Khoa phòng & khu vực',U2:'Unit 2 · Đề nghị hỗ trợ & nhu cầu người bệnh',U3:'Unit 3 · Dấu hiệu sinh tồn & chỉ số'},keys:['gtbn_l2_progress_v1','gtbn_l2_srs_v1','gtbn_l2_fill_v1']}
 };
 function loadJ(k){try{return JSON.parse(localStorage.getItem(k)||"{}")||{};}catch(e){return {};}}
 function setCourse(id){
