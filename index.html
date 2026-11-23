@@ -234,6 +234,9 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .deck .dn{flex:1;min-width:0;font-weight:600}
 .deck.all .dn{color:var(--blue)}
 .cnt{display:flex;gap:10px;font-variant-numeric:tabular-nums;font-weight:700;font-size:.95rem}
+.c-kn{color:var(--muted)}
+.kbtn{display:block;margin:10px auto 0;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:9px 18px;font-weight:600;font-size:.92rem;cursor:pointer}
+.kbtn.on{border-color:var(--green);color:var(--green)}
 .c-new{color:var(--blue)}.c-lrn{color:var(--red)}.c-rev{color:var(--green)}
 .cnt .z{opacity:.28}
 .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:.8rem;color:var(--muted)}
@@ -1387,12 +1390,14 @@ function ssave(){try{localStorage.setItem(SKEY,JSON.stringify(srs));}catch(e){}}
 var MIN=60000, DAY=86400000, STEPS=[1,10], RSTEP=10, LEARN_AHEAD=20*MIN;
 function card(id){return srs[id]||{q:'new',step:0,ivl:0,ease:2.5,due:0,reps:0,lapses:0};}
 function dayEnd(){var d=new Date();d.setHours(23,59,59,999);return d.getTime();}
-function counts(ids){var now=Date.now(),de=dayEnd(),n=0,l=0,r=0;
+function isK(id){return !!(srs[id]&&srs[id].known);}
+function counts(ids,inc){var now=Date.now(),de=dayEnd(),n=0,l=0,r=0,k=0;
   ids.forEach(function(id){var c=card(id);
+    if(c.known){k++;if(!inc)return;if(c.q==='review'){r++;return;}}
     if(c.q==='new')n++;
     else if(c.q==='learn'||c.q==='relearn'){if(c.due<=now+LEARN_AHEAD)l++;}
     else if(c.due<=de)r++;});
-  return {n:n,l:l,r:r};}
+  return {n:n,l:l,r:r,k:k};}
 function idsOf(g){return ITEMS.filter(function(it){return g==='all'||(Array.isArray(g)?g.indexOf(it.g)>-1:it.g===g);}).map(function(it){return it.id;});}
 function cnum(v,cls){return '<span class="'+cls+(v?'':' z')+'">'+v+'</span>';}
 var FKEY="gtbn_fill_v1", fillst={}, RMODE='anki', FSCOPE='all', FLEVEL='basic';
@@ -1442,10 +1447,10 @@ function renderDecks(){
     html+='<button class="deck all" data-g="all"><span class="dn">'+(FSCOPE==='wrong'?'Tất cả từ sai của mọi phần':'20 mục yếu nhất từ mọi phần')+'</span><span class="cnt">'+cnum(ac.w,'c-lrn')+cnum(ac.k,'c-rev')+'</span></button>';
   }else{
     $('srs-intro').textContent='Xem mặt trước, tự nhớ, bấm hiện đáp án rồi tự chấm. Thẻ nhớ kém sẽ quay lại sớm, thẻ nhớ tốt được giãn ra nhiều ngày sau.';
-    $('srs-legend').innerHTML='<span><b class="c-new">Xanh dương</b> thẻ mới</span><span><b class="c-lrn">Đỏ</b> đang học</span><span><b class="c-rev">Xanh lá</b> đến hạn ôn</span>';
-    html+=deckGroups(function(ids){var c=counts(ids);return cnum(c.n,'c-new')+cnum(c.l,'c-lrn')+cnum(c.r,'c-rev');});
+    $('srs-legend').innerHTML='<span><b class="c-new">Xanh dương</b> thẻ mới</span><span><b class="c-lrn">Đỏ</b> đang học</span><span><b class="c-rev">Xanh lá</b> đến hạn ôn</span><span><b class="c-kn">Xám</b> đã thuộc, không ôn lại</span>';
+    html+=deckGroups(function(ids){var c=counts(ids);return cnum(c.n,'c-new')+cnum(c.l,'c-lrn')+cnum(c.r,'c-rev')+cnum(c.k,'c-kn');});
     var a=counts(idsOf('all'));
-    html+='<button class="deck all" data-g="all"><span class="dn">Ôn tất cả các phần</span><span class="cnt">'+cnum(a.n,'c-new')+cnum(a.l,'c-lrn')+cnum(a.r,'c-rev')+'</span></button>';
+    html+='<button class="deck all" data-g="all"><span class="dn">Ôn tất cả các phần</span><span class="cnt">'+cnum(a.n,'c-new')+cnum(a.l,'c-lrn')+cnum(a.r,'c-rev')+cnum(a.k,'c-kn')+'</span></button>';
   }
   el.innerHTML=html;
   renderDsel();
@@ -1507,14 +1512,28 @@ function schedule(c0,g,now){
 }
 
 var R=null;
-function startReview(g){
-  R={g:g,ids:idsOf(g),done:0,again:0,cur:null,shown:false};
+function startReview(g,inc){
+  var ids=idsOf(g),nk=ids.filter(isK).length;
   $('rv-title').textContent=(g==='all'?'Ôn tất cả các phần':Array.isArray(g)?('Ôn '+g.length+' phần đã chọn'):GROUPS[g]);
+  if(g==='all'&&inc===undefined&&nk){
+    R=null;show('review');
+    $('rv-body').innerHTML='<div class="rdone"><h2>Ôn cả các thẻ đã thuộc?</h2><p>Có '+nk+' thẻ anh đã đánh dấu Đã thuộc. Bình thường các thẻ này không được hỏi lại.</p></div>';
+    $('rv-actions').innerHTML='<div class="btnrow"><button class="btn sec2" id="rv-skipk">Bỏ qua thẻ đã thuộc</button><button class="btn" id="rv-inck">Ôn cả thẻ đã thuộc</button></div>';
+    $('rv-cta').hidden=false;
+    $('rv-skipk').onclick=function(){startReview(g,false);};
+    $('rv-inck').onclick=function(){startReview(g,true);};
+    return;}
+  R={g:g,ids:ids,inc:!!inc,seenK:{},known:0,done:0,again:0,cur:null,shown:false};
   show('review');nextCard();
 }
+function kBtn(){var k=isK(R.cur);return '<button class="kbtn'+(k?' on':'')+'" id="rv-known">'+(k?'✓ Đã thuộc · bấm để bỏ':'Đã thuộc, không ôn lại nữa')+'</button>';}
+function toggleKnown(){if(!R||R.cur==null)return;var id=R.cur;
+  if(isK(id)){delete srs[id].known;ssave();var b=$('rv-known');if(b)b.outerHTML=kBtn();return;}
+  srs[id]=Object.assign(card(id),{known:1});ssave();R.known++;R.seenK[id]=1;nextCard();}
 function pickNext(){
   var now=Date.now(),de=dayEnd(),lrn=[],rev=[],nw=[];
   R.ids.forEach(function(id){var c=card(id);
+    if(c.known){if(!R.inc||R.seenK[id])return;if(c.q==='review'){rev.push(id);return;}}
     if(c.q==='new')nw.push(id);
     else if(c.q==='learn'||c.q==='relearn')lrn.push(id);
     else if(c.due<=de)rev.push(id);});
@@ -1526,7 +1545,7 @@ function pickNext(){
   return null;
 }
 function topCounts(curId){
-  var c=counts(R.ids),cc=curId!=null?card(curId).q:null;
+  var c=counts(R.ids,R.inc),cc=curId!=null?card(curId).q:null;
   var cls=function(q){return q==='new'?'n':(q==='review'?'r':'l');}(cc);
   return '<div class="rv-top"><span class="c-new'+(cls==='n'?' on':'')+'">'+c.n+'</span><span class="c-lrn'+(cls==='l'?' on':'')+'">'+c.l+'</span><span class="c-rev'+(cls==='r'?' on':'')+'">'+c.r+'</span></div>';
 }
@@ -1540,7 +1559,7 @@ function nextCard(){
     '<div class="qen">'+esc(it.e)+'</div>'+
     '<button class="spk" data-say="'+esc(it.e)+'">'+SPK+' Nghe</button>'+
     '<div id="rv-back" hidden style="width:100%;display:flex;flex-direction:column;gap:10px;align-items:center"></div></div>';
-  $('rv-actions').innerHTML='<button class="btn" id="rv-show">Hiện đáp án</button>';
+  $('rv-actions').innerHTML='<button class="btn" id="rv-show">Hiện đáp án</button>'+kBtn();
   $('rv-cta').hidden=false;
   $('rv-show').onclick=showAnswer;
   speak(it.e);
@@ -1558,27 +1577,29 @@ function showAnswer(){
   var lab=['Lại','Khó','Tốt','Dễ'],cls=['g-again','g-hard','g-good','g-easy'],h='<div class="grades">';
   for(var g=1;g<=4;g++){var nc=schedule(c,g,now);
     h+='<button class="grade '+cls[g-1]+'" data-g="'+g+'">'+lab[g-1]+'<small>'+fmtIvl(nc.due-now)+'</small></button>';}
-  $('rv-actions').innerHTML=h+'</div>';
+  $('rv-actions').innerHTML=h+'</div>'+kBtn();
   $('rv-actions').querySelector('.grades').onclick=function(e){var b=e.target.closest('.grade');if(b)grade(parseInt(b.getAttribute('data-g'),10));};
 }
 function grade(g){
   if(!R||!R.shown)return;
   srs[R.cur]=schedule(card(R.cur),g,Date.now());ssave();
+  if(isK(R.cur))R.seenK[R.cur]=1;
   R.done++;if(g===1)R.again++;
   nextCard();
 }
 function reviewDone(){
   var now=Date.now(),soon=null;
-  R.ids.forEach(function(id){var c=card(id);if(c.q!=='new'&&(soon===null||c.due<soon))soon=c.due;});
+  R.ids.forEach(function(id){var c=card(id);if(c.known)return;if(c.q!=='new'&&(soon===null||c.due<soon))soon=c.due;});
   var nextTxt=soon?('Lần ôn tiếp theo của phần này: sau '+fmtIvl(Math.max(MIN,soon-now))+'.'):'';
-  $('rv-body').innerHTML='<div class="rdone"><h2>'+(R.done?'Xong lượt ôn hôm nay':'Chưa có thẻ nào đến hạn')+'</h2>'+
-    (R.done?'<p>Đã ôn '+R.done+' lượt thẻ, bấm "Lại" '+R.again+' lần.</p>':'')+'<p>'+nextTxt+'</p></div>';
+  $('rv-body').innerHTML='<div class="rdone"><h2>'+(R.done||R.known?'Xong lượt ôn hôm nay':'Chưa có thẻ nào đến hạn')+'</h2>'+
+    (R.done?'<p>Đã ôn '+R.done+' lượt thẻ, bấm "Lại" '+R.again+' lần.</p>':'')+(R.known?'<p>Đánh dấu Đã thuộc thêm '+R.known+' thẻ.</p>':'')+'<p>'+nextTxt+'</p></div>';
   $('rv-actions').innerHTML='<button class="btn" id="rv-home">Về trang chính</button>';
   $('rv-home').onclick=function(){R=null;renderHome();show('home');};
   $('rv-cta').hidden=false;
 }
 $('rv-body').addEventListener('click',function(e){var sp=e.target.closest('.spk');if(sp){speak(sp.getAttribute('data-say'));return;}
   if(R&&!R.shown&&e.target.closest('.rcard'))showAnswer();});
+$('rv-actions').addEventListener('click',function(e){if(e.target.closest('#rv-known'))toggleKnown();});
 $('rv-close').addEventListener('click',function(){R=null;renderHome();show('home');});
 document.addEventListener('keydown',function(e){
   if(!R||$('v-review').hidden)return;
