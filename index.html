@@ -191,6 +191,14 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .rt-row.open .uchev,.deck.open .uchev{transform:rotate(90deg)}
 .deck.unit{background:var(--tile)}
 .deck.sub{padding-left:30px}
+.cb.on{background:var(--blue);border-color:var(--blue)}
+.cb.on::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid var(--blue-ink);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.cb.mix{border-color:var(--blue)}
+.cb.mix::after{content:"";position:absolute;left:3px;top:7px;width:10px;height:2px;background:var(--blue)}
+.dcb{flex:none;display:flex;align-items:center;padding:10px;margin:-10px -4px -10px -10px;cursor:pointer}
+.dsel{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--soft-blue);border:1.5px solid var(--blue);border-radius:14px;padding:10px 12px;margin-bottom:12px}
+.dsel span{flex:1;min-width:140px;font-size:.92rem;font-weight:600}
+.dsel .btn{width:auto;padding:9px 16px;font-size:.92rem}
 .rt-row{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--surface)}
 .rt-row.cur{border:2px solid var(--blue);background:var(--soft-blue)}
 .rt-n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--tile);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem}
@@ -292,6 +300,7 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
       <div class="seg" id="fsub" hidden><button data-x="adv">Nghe điền câu</button><button data-x="tr">Dịch Việt → Anh</button></div>
       <div class="seg" id="fscope" hidden><button data-s="wrong">Từ sai</button><button data-s="all">Học cả</button></div>
       <p class="srs-intro" id="srs-intro"></p>
+      <div class="dsel" id="dsel" hidden></div>
       <div class="decks" id="decks"></div>
       <div class="legend" id="srs-legend"><span><b class="c-new">Xanh dương</b> thẻ mới</span><span><b class="c-lrn">Đỏ</b> đang học</span><span><b class="c-rev">Xanh lá</b> đến hạn ôn</span></div>
     </div>
@@ -1336,7 +1345,7 @@ function setCourse(id){
   GROUPS=C.groups;ITEMS=C.items;KEY=C.keys[0];SKEY=C.keys[1];FKEY=C.keys[2];
   prog=loadJ(KEY);srs=loadJ(SKEY);fillst=loadJ(FKEY);
   var ch=false;Object.keys(fillst).forEach(function(k){var x=fillst[k];if(x&&x.w===undefined){x.w=(x.n>0&&!x.s)?1:0;x.k=x.k||0;ch=true;}});if(ch)fsave();
-  scope='all';OPENU={};SEL={};OPENS={};
+  scope='all';OPENU={};SEL={};OPENS={};DSEL={};
   try{localStorage.setItem('gtbn_course',id);}catch(e){}
 }
 $('ctabs').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
@@ -1377,7 +1386,7 @@ function counts(ids){var now=Date.now(),de=dayEnd(),n=0,l=0,r=0;
     else if(c.q==='learn'||c.q==='relearn'){if(c.due<=now+LEARN_AHEAD)l++;}
     else if(c.due<=de)r++;});
   return {n:n,l:l,r:r};}
-function idsOf(g){return ITEMS.filter(function(it){return g==='all'||it.g===g;}).map(function(it){return it.id;});}
+function idsOf(g){return ITEMS.filter(function(it){return g==='all'||(Array.isArray(g)?g.indexOf(it.g)>-1:it.g===g);}).map(function(it){return it.id;});}
 function cnum(v,cls){return '<span class="'+cls+(v?'':' z')+'">'+v+'</span>';}
 var FKEY="gtbn_fill_v1", fillst={}, RMODE='anki', FSCOPE='all', FLEVEL='basic';
 var FSUB='adv';
@@ -1390,15 +1399,24 @@ function isKnown(id){var x=fillst[sk(id)];return !!(x&&x.k);}
 function isWeak(id){var x=fillst[sk(id)];return !!(x&&x.w&&!x.k);}
 function fcnt(id){var x=fillst[sk(id)];return (x&&x.s)||0;}
 function fcounts(ids){var w=0,k=0;ids.forEach(function(id){if(isWeak(id))w++;if(isKnown(id))k++;});return {w:w,k:k};}
-function deckRow(gi,cntFn,sub){return '<button class="deck'+(sub?' sub':'')+'" data-g="'+gi+'"><span class="dn">'+esc(sub?plainName(GROUPS[gi]):GROUPS[gi])+(gi===curGroup()?'<em class="cur">đang học</em>':'')+'</span><span class="cnt">'+cntFn(idsOf(gi))+'</span></button>';}
+var DSEL={};
+function dKeys(){return Object.keys(DSEL).map(Number).sort(function(a,b){return a-b;});}
+function deckRow(gi,cntFn,sub){return '<button class="deck'+(sub?' sub':'')+'" data-g="'+gi+'"><span class="dcb" data-c="'+gi+'" aria-label="Chọn phần này"><i class="cb'+(DSEL[gi]?' on':'')+'"></i></span><span class="dn">'+esc(sub?plainName(GROUPS[gi]):GROUPS[gi])+(gi===curGroup()?'<em class="cur">đang học</em>':'')+'</span><span class="cnt">'+cntFn(idsOf(gi))+'</span></button>';}
 function deckGroups(cntFn){
   var ug=unitGroups(),h='';
   if(!ug){GROUPS.forEach(function(gn,gi){h+=deckRow(gi,cntFn,false);});return h;}
   var cg=curGroup();
-  ug.forEach(function(u){var ids=[];u.gis.forEach(function(gi){ids=ids.concat(idsOf(gi));});var open=!!OPENU['d'+u.k];
-    h+='<button class="deck unit'+(open?' open':'')+'" data-u="'+u.k+'" aria-expanded="'+open+'"><span class="dn">'+esc(u.title)+(u.gis.indexOf(cg)>-1?'<em class="cur">đang học</em>':'')+'</span><span class="cnt">'+cntFn(ids)+'</span>'+CHEV+'</button>';
+  ug.forEach(function(u){var ids=[],n=0;u.gis.forEach(function(gi){ids=ids.concat(idsOf(gi));if(DSEL[gi])n++;});var open=!!OPENU['d'+u.k];
+    var st=n===u.gis.length?' on':(n>0?' mix':'');
+    h+='<button class="deck unit'+(open?' open':'')+'" data-u="'+u.k+'" aria-expanded="'+open+'"><span class="dcb" data-cu="'+u.k+'" aria-label="Chọn cả Unit"><i class="cb'+st+'"></i></span><span class="dn">'+esc(u.title)+(u.gis.indexOf(cg)>-1?'<em class="cur">đang học</em>':'')+'</span><span class="cnt">'+cntFn(ids)+'</span>'+CHEV+'</button>';
     if(open)u.gis.forEach(function(gi){h+=deckRow(gi,cntFn,true);});});
   return h;}
+function renderDsel(){
+  var ks=dKeys(),el=$('dsel');if(!el)return;
+  if(!ks.length){el.hidden=true;return;}
+  var n=ITEMS.filter(function(it){return DSEL[it.g];}).length;
+  el.innerHTML='<span>Đã chọn '+ks.length+' phần, '+n+' mục</span><button class="btn" id="dsel-go">'+(RMODE==='fill'?'Điền từ':'Ôn')+' các phần đã chọn</button><button class="txtbtn" id="dsel-clr">Bỏ chọn</button>';
+  el.hidden=false;}
 function renderDecks(){
   var el=$('decks');if(!el)return;
   Array.prototype.forEach.call(document.querySelectorAll('#rmode button'),function(b){b.classList.toggle('on',b.getAttribute('data-m')===RMODE);});
@@ -1423,6 +1441,7 @@ function renderDecks(){
     html+='<button class="deck all" data-g="all"><span class="dn">Ôn tất cả các phần</span><span class="cnt">'+cnum(a.n,'c-new')+cnum(a.l,'c-lrn')+cnum(a.r,'c-rev')+'</span></button>';
   }
   el.innerHTML=html;
+  renderDsel();
 }
 $('flevel').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
   FLEVEL=b.getAttribute('data-l')==='basic'?'basic':FSUB;try{localStorage.setItem('gtbn_flevel',FLEVEL);}catch(x){}renderDecks();});
@@ -1432,7 +1451,17 @@ $('fscope').addEventListener('click',function(e){var b=e.target.closest('button'
   FSCOPE=b.getAttribute('data-s')==='wrong'?'wrong':'all';try{localStorage.setItem('gtbn_fscope',FSCOPE);}catch(x){}renderDecks();});
 $('rmode').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
   RMODE=b.getAttribute('data-m')==='fill'?'fill':'anki';try{localStorage.setItem('gtbn_rmode',RMODE);}catch(x){}renderDecks();});
-$('decks').addEventListener('click',function(e){var b=e.target.closest('.deck');if(!b)return;
+$('dsel').addEventListener('click',function(e){
+  if(e.target.id==='dsel-clr'){DSEL={};renderDecks();return;}
+  if(e.target.id==='dsel-go'){var ks=dKeys();if(!ks.length)return;if(RMODE==='fill')startFill(ks);else startReview(ks);}});
+$('decks').addEventListener('click',function(e){
+  var cb=e.target.closest('.dcb');
+  if(cb){var cu=cb.getAttribute('data-cu');
+    if(cu){var u=(unitGroups()||[]).filter(function(z){return z.k===cu;})[0];
+      if(u){var all=u.gis.every(function(gi){return DSEL[gi];});u.gis.forEach(function(gi){if(all)delete DSEL[gi];else DSEL[gi]=true;});}}
+    else{var g0=parseInt(cb.getAttribute('data-c'),10);if(DSEL[g0])delete DSEL[g0];else DSEL[g0]=true;}
+    renderDecks();return;}
+  var b=e.target.closest('.deck');if(!b)return;
   var uk=b.getAttribute('data-u');if(uk){OPENU['d'+uk]=!OPENU['d'+uk];renderDecks();return;}
   var g=b.getAttribute('data-g');g=(g==='all'?'all':parseInt(g,10));
   if(RMODE==='fill')startFill(g);else startReview(g);});
@@ -1473,7 +1502,7 @@ function schedule(c0,g,now){
 var R=null;
 function startReview(g){
   R={g:g,ids:idsOf(g),done:0,again:0,cur:null,shown:false};
-  $('rv-title').textContent=(g==='all'?'Ôn tất cả các phần':GROUPS[g]);
+  $('rv-title').textContent=(g==='all'?'Ôn tất cả các phần':Array.isArray(g)?('Ôn '+g.length+' phần đã chọn'):GROUPS[g]);
   show('review');nextCard();
 }
 function pickNext(){
