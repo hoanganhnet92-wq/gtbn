@@ -1556,7 +1556,7 @@ function nextCard(){
   var it=ITEMS[id];
   $('rv-body').innerHTML=topCounts(id)+
     '<div class="rcard"><span class="qlabel">'+(kindSent(it)?'Câu mẫu':'Từ vựng')+'</span>'+
-    '<div class="qen">'+esc(it.e)+'</div>'+
+    '<div class="qen">'+esc(it.e)+'</div>'+(it.ipa?'<span class="ipa">'+esc(it.ipa)+'</span>':'')+
     '<button class="spk" data-say="'+esc(it.e)+'">'+SPK+' Nghe</button>'+
     '<div id="rv-back" hidden style="width:100%;display:flex;flex-direction:column;gap:10px;align-items:center"></div></div>';
   $('rv-actions').innerHTML='<button class="btn" id="rv-show">Hiện đáp án</button>'+kBtn();
@@ -1569,7 +1569,7 @@ function showAnswer(){
   if(!R||R.shown)return;R.shown=true;
   var it=ITEMS[R.cur],c=card(R.cur),now=Date.now();
   var back=$('rv-back');
-  back.innerHTML='<hr class="rdiv">'+(it.ipa?'<span class="ipa">'+esc(it.ipa)+'</span>':'')+
+  back.innerHTML='<hr class="rdiv">'+
     '<div class="rmean">'+esc(it.m)+'</div>'+
     (exHas(it)?'<div class="exbox"><span class="exen">'+esc(it.ex)+'</span><span class="exvi">'+esc(it.exm)+'</span>'+
     '<button class="spk" data-say="'+esc(it.ex)+'">'+SPK+' Nghe ví dụ</button></div>':'');
