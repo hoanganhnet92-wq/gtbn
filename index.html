@@ -156,6 +156,18 @@ svg{flex:none}
   border-radius:12px;padding:12px 14px;font-size:.98rem;cursor:pointer;text-align:left}
 .choice small{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 .choice.on{border-color:var(--blue);background:var(--soft-blue)}
+.choice .cl{color:var(--ink);display:flex;align-items:center;gap:11px;min-width:0;flex:1;text-align:left}
+.cb{flex:none;width:20px;height:20px;border:2px solid var(--muted);border-radius:6px;position:relative;display:inline-block}
+.choice.on .cb{background:var(--blue);border-color:var(--blue)}
+.choice.on .cb::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid var(--blue-ink);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.choice.mix{border-color:var(--blue)}
+.choice.mix .cb{border-color:var(--blue)}
+.choice.mix .cb::after{content:"";position:absolute;left:3px;top:7px;width:10px;height:2px;background:var(--blue)}
+.choice.sub{margin-left:18px}
+.choice.urow{cursor:pointer;-webkit-user-select:none;user-select:none}
+.choice .cx{display:flex;align-items:center;padding:6px 2px 6px 8px;margin:-6px -4px -6px 0}
+.choice.urow.open .uchev{transform:rotate(90deg)}
+.sel-info{color:var(--muted);font-size:.9rem;margin:-6px 0 14px}
 .seg{display:flex;background:var(--bg);border-radius:12px;padding:3px;gap:3px;margin-bottom:18px}
 .seg button{flex:1;border:none;background:none;padding:10px 6px;border-radius:9px;font-weight:600;font-size:.94rem;cursor:pointer;color:var(--muted)}
 .seg button.on{background:var(--blue);color:var(--blue-ink)}
@@ -346,7 +358,8 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
   <h3>Chọn nội dung học</h3>
   <p class="sub">Mỗi lượt ưu tiên mục đang học dở và mục chưa mở.</p>
   <div class="choices" id="choices"></div>
-  <div class="seg" id="sizes"><button data-n="10" class="on">10 mục</button><button data-n="20">20 mục</button><button data-n="30">30 mục</button></div>
+  <p class="sel-info" id="sel-info"></p>
+  <div class="seg" id="sizes"><button data-n="10" class="on">10 mục</button><button data-n="20">20 mục</button><button data-n="30">30 mục</button><button data-n="50">50 mục</button></div>
   <button class="btn" id="go">Bắt đầu</button>
 </div>
 
@@ -1155,15 +1168,25 @@ $('list-back').addEventListener('click',function(){renderHome();show('home');});
 /* ===== SHEET CHỌN NỘI DUNG ===== */
 var scope='all',size=10;
 var sheet=$('sheet'),backdrop=$('backdrop');
+var SEL={},OPENS={};
+function selKeys(){return Object.keys(SEL).map(Number);}
+function grpCount(gi){var all=ITEMS.filter(function(it){return it.g===gi;});
+  return {d:all.filter(function(it){return sOf(it.id)===2;}).length,t:all.length};}
+function choicePart(gi,sub){var c=grpCount(gi);
+  return '<button class="choice'+(SEL[gi]?' on':'')+(sub?' sub':'')+'" data-g="'+gi+'"><span class="cl"><i class="cb"></i>'+esc(sub?plainName(GROUPS[gi]):GROUPS[gi])+'</span><small>'+c.d+'/'+c.t+'</small></button>';}
 function renderChoices(){
-  var s=stats();
-  var html='<button class="choice'+(scope==='all'?' on':'')+'" data-g="all"><span>Tất cả các nhóm</span><small>'+s.learned+'/'+ITEMS.length+' đã học</small></button>';
-  GROUPS.forEach(function(gn,gi){
-    var all=ITEMS.filter(function(it){return it.g===gi;});
-    var d=all.filter(function(it){return sOf(it.id)===2;}).length;
-    html+='<button class="choice'+(scope===gi?' on':'')+'" data-g="'+gi+'"><span>'+esc(gn)+'</span><small>'+d+'/'+all.length+'</small></button>';
+  var ks=selKeys(),s=stats(),ug=unitGroups();
+  var html='<button class="choice'+(!ks.length?' on':'')+'" data-a="all"><span class="cl"><i class="cb"></i>Tất cả các nhóm</span><small>'+s.learned+'/'+ITEMS.length+' đã học</small></button>';
+  if(!ug)GROUPS.forEach(function(gn,gi){html+=choicePart(gi,false);});
+  else ug.forEach(function(u){
+    var n=0,d=0,t=0;u.gis.forEach(function(gi){if(SEL[gi])n++;var c=grpCount(gi);d+=c.d;t+=c.t;});
+    var all=n===u.gis.length,some=n>0&&!all,open=!!OPENS[u.k];
+    html+='<div class="choice urow'+(all?' on':'')+(some?' mix':'')+(open?' open':'')+'" data-u="'+u.k+'" role="button"><span class="cl"><i class="cb"></i>'+esc(u.title)+'</span><small>'+(n?n+' phần · ':'')+d+'/'+t+'</small><span class="cx" data-x="'+u.k+'" aria-label="Mở danh sách phần">'+CHEV+'</span></div>';
+    if(open)u.gis.forEach(function(gi){html+=choicePart(gi,true);});
   });
   $('choices').innerHTML=html;
+  var cnt=ks.length?ITEMS.filter(function(it){return SEL[it.g];}).length:ITEMS.length;
+  $('sel-info').textContent=ks.length?('Đã chọn '+ks.length+' phần, '+cnt+' mục. Các phần được trộn lẫn khi học.'):'Chưa chọn phần nào nên sẽ học tất cả '+cnt+' mục. Chọn nhiều phần để trộn.';
 }
 function openSheet(){renderChoices();backdrop.hidden=false;sheet.hidden=false;
   requestAnimationFrame(function(){backdrop.classList.add('show');sheet.classList.add('show');});}
@@ -1172,18 +1195,25 @@ function closeSheet(){backdrop.classList.remove('show');sheet.classList.remove('
 $('start').addEventListener('click',openSheet);
 backdrop.addEventListener('click',closeSheet);
 $('choices').addEventListener('click',function(e){var b=e.target.closest('.choice');if(!b)return;
-  var g=b.getAttribute('data-g');scope=(g==='all')?'all':parseInt(g,10);renderChoices();});
+  var x=e.target.closest('[data-x]');
+  if(x){var k=x.getAttribute('data-x');OPENS[k]=!OPENS[k];}
+  else if(b.hasAttribute('data-a')){SEL={};}
+  else if(b.hasAttribute('data-u')){var ug=unitGroups()||[],u=ug.filter(function(z){return z.k===b.getAttribute('data-u');})[0];
+    if(u){var all=u.gis.every(function(gi){return SEL[gi];});u.gis.forEach(function(gi){if(all)delete SEL[gi];else SEL[gi]=true;});}}
+  else{var g=parseInt(b.getAttribute('data-g'),10);if(SEL[g])delete SEL[g];else SEL[g]=true;}
+  renderChoices();});
 $('sizes').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
   size=parseInt(b.getAttribute('data-n'),10);
   Array.prototype.forEach.call($('sizes').children,function(x){x.classList.toggle('on',x===b);});});
-$('go').addEventListener('click',function(){closeSheet();startSession(scope,size);});
+$('go').addEventListener('click',function(){closeSheet();var ks=selKeys();startSession(ks.length?ks:'all',size);});
 
 /* ===== PHIÊN HỌC ===== */
 var S=null;
 function startSession(sc,n){
-  var pool=ITEMS.filter(function(it){return sc==='all'||it.g===sc;});
+  var pool=ITEMS.filter(function(it){return sc==='all'||sc.indexOf(it.g)>-1;});
   var learning=shuffle(pool.filter(function(it){return sOf(it.id)===1;}));
   var fresh=pool.filter(function(it){return sOf(it.id)===0;});
+  if(sc!=='all'&&sc.length>1)fresh=shuffle(fresh);
   var done=shuffle(pool.filter(function(it){return sOf(it.id)===2;}));
   var takeL=Math.min(learning.length,Math.ceil(n/2));
   var picked=learning.slice(0,takeL);
@@ -1306,7 +1336,7 @@ function setCourse(id){
   GROUPS=C.groups;ITEMS=C.items;KEY=C.keys[0];SKEY=C.keys[1];FKEY=C.keys[2];
   prog=loadJ(KEY);srs=loadJ(SKEY);fillst=loadJ(FKEY);
   var ch=false;Object.keys(fillst).forEach(function(k){var x=fillst[k];if(x&&x.w===undefined){x.w=(x.n>0&&!x.s)?1:0;x.k=x.k||0;ch=true;}});if(ch)fsave();
-  scope='all';OPENU={};
+  scope='all';OPENU={};SEL={};OPENS={};
   try{localStorage.setItem('gtbn_course',id);}catch(e){}
 }
 $('ctabs').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
