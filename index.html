@@ -1198,8 +1198,8 @@ function renderChoices(){
   var base=ks.length?ITEMS.filter(function(it){return SEL[it.g];}):ITEMS;
   var nNew=base.filter(function(it){return sOf(it.id)===0;}).length,cnt=ONLYNEW?nNew:base.length;
   $('onlynew').classList.toggle('on',ONLYNEW);$('onlynew-n').textContent=nNew+' mục';
-  $('sel-info').textContent=(ks.length?('Đã chọn '+ks.length+' phần, '+base.length+' mục. Các phần được trộn lẫn khi học.'):('Chưa chọn phần nào nên sẽ học tất cả '+base.length+' mục. Chọn nhiều phần để trộn.'))+(ONLYNEW?(cnt?' Chỉ lấy '+cnt+' mục chưa học.':' Không còn mục nào chưa học trong phần đã chọn.'):'');
-  $('go').disabled=!cnt;
+  $('sel-info').textContent=(ks.length?('Đã chọn '+ks.length+' phần, '+base.length+' mục. Các phần được trộn lẫn khi học.'):('Chưa chọn phần nào nên sẽ học tất cả '+base.length+' mục. Chọn nhiều phần để trộn.'))+(ONLYNEW?(cnt?' Sẽ học cả '+cnt+' mục chưa học trong một lượt.':' Không còn mục nào chưa học trong phần đã chọn.'):'');
+  $('go').disabled=!cnt;$('sizes').hidden=ONLYNEW;
 }
 function openSheet(){renderChoices();backdrop.hidden=false;sheet.hidden=false;
   requestAnimationFrame(function(){backdrop.classList.add('show');sheet.classList.add('show');});}
@@ -1219,7 +1219,7 @@ $('onlynew').addEventListener('click',function(){ONLYNEW=!ONLYNEW;renderChoices(
 $('sizes').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
   size=b.getAttribute('data-n')==='all'?'all':parseInt(b.getAttribute('data-n'),10);
   Array.prototype.forEach.call($('sizes').children,function(x){x.classList.toggle('on',x===b);});});
-$('go').addEventListener('click',function(){closeSheet();var ks=selKeys();startSession(ks.length?ks:'all',size,ONLYNEW);});
+$('go').addEventListener('click',function(){closeSheet();var ks=selKeys();startSession(ks.length?ks:'all',ONLYNEW?'all':size,ONLYNEW);});
 
 /* ===== PHIÊN HỌC ===== */
 var S=null;
