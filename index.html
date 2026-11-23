@@ -1075,7 +1075,7 @@ function doSpeak(text,rate){
   if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();
   try{speechSynthesis.resume();}catch(e){}
   text=String(text).replace(/\s*\/\s*/g,', ').replace(/[–—]/g,' ');
-  var u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=rate||.9;
+  var u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=rate||.75;
   var vs=speechSynthesis.getVoices()||[];
   var v=vs.filter(function(x){return /en[-_]US/i.test(x.lang);})[0]||vs.filter(function(x){return /^en/i.test(x.lang);})[0];
   if(v)u.voice=v;
