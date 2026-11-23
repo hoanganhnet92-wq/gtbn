@@ -167,6 +167,7 @@ svg{flex:none}
 .choice.urow{cursor:pointer;-webkit-user-select:none;user-select:none}
 .choice .cx{display:flex;align-items:center;padding:6px 2px 6px 8px;margin:-6px -4px -6px 0}
 .choice.urow.open .uchev{transform:rotate(90deg)}
+.seg button{padding-left:2px;padding-right:2px}
 .sel-info{color:var(--muted);font-size:.9rem;margin:-6px 0 14px}
 .seg{display:flex;background:var(--bg);border-radius:12px;padding:3px;gap:3px;margin-bottom:18px}
 .seg button{flex:1;border:none;background:none;padding:10px 6px;border-radius:9px;font-weight:600;font-size:.94rem;cursor:pointer;color:var(--muted)}
@@ -368,7 +369,8 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
   <p class="sub">Mỗi lượt ưu tiên mục đang học dở và mục chưa mở.</p>
   <div class="choices" id="choices"></div>
   <p class="sel-info" id="sel-info"></p>
-  <div class="seg" id="sizes"><button data-n="10" class="on">10 mục</button><button data-n="20">20 mục</button><button data-n="30">30 mục</button><button data-n="50">50 mục</button></div>
+  <button class="choice" id="onlynew" style="margin-bottom:14px;width:100%"><span class="cl"><i class="cb"></i>Chỉ học các mục chưa học</span><small id="onlynew-n"></small></button>
+  <div class="seg" id="sizes"><button data-n="10" class="on">10 mục</button><button data-n="20">20 mục</button><button data-n="30">30 mục</button><button data-n="50">50 mục</button><button data-n="all">Tất cả</button></div>
   <button class="btn" id="go">Bắt đầu</button>
 </div>
 
@@ -1176,7 +1178,7 @@ $('list-back').addEventListener('click',function(){renderHome();show('home');});
 /* ===== SHEET CHỌN NỘI DUNG ===== */
 var scope='all',size=10;
 var sheet=$('sheet'),backdrop=$('backdrop');
-var SEL={},OPENS={};
+var SEL={},OPENS={},ONLYNEW=false;
 function selKeys(){return Object.keys(SEL).map(Number);}
 function grpCount(gi){var all=ITEMS.filter(function(it){return it.g===gi;});
   return {d:all.filter(function(it){return sOf(it.id)===2;}).length,t:all.length};}
@@ -1193,8 +1195,11 @@ function renderChoices(){
     if(open)u.gis.forEach(function(gi){html+=choicePart(gi,true);});
   });
   $('choices').innerHTML=html;
-  var cnt=ks.length?ITEMS.filter(function(it){return SEL[it.g];}).length:ITEMS.length;
-  $('sel-info').textContent=ks.length?('Đã chọn '+ks.length+' phần, '+cnt+' mục. Các phần được trộn lẫn khi học.'):'Chưa chọn phần nào nên sẽ học tất cả '+cnt+' mục. Chọn nhiều phần để trộn.';
+  var base=ks.length?ITEMS.filter(function(it){return SEL[it.g];}):ITEMS;
+  var nNew=base.filter(function(it){return sOf(it.id)===0;}).length,cnt=ONLYNEW?nNew:base.length;
+  $('onlynew').classList.toggle('on',ONLYNEW);$('onlynew-n').textContent=nNew+' mục';
+  $('sel-info').textContent=(ks.length?('Đã chọn '+ks.length+' phần, '+base.length+' mục. Các phần được trộn lẫn khi học.'):('Chưa chọn phần nào nên sẽ học tất cả '+base.length+' mục. Chọn nhiều phần để trộn.'))+(ONLYNEW?(cnt?' Chỉ lấy '+cnt+' mục chưa học.':' Không còn mục nào chưa học trong phần đã chọn.'):'');
+  $('go').disabled=!cnt;
 }
 function openSheet(){renderChoices();backdrop.hidden=false;sheet.hidden=false;
   requestAnimationFrame(function(){backdrop.classList.add('show');sheet.classList.add('show');});}
@@ -1210,15 +1215,18 @@ $('choices').addEventListener('click',function(e){var b=e.target.closest('.choic
     if(u){var all=u.gis.every(function(gi){return SEL[gi];});u.gis.forEach(function(gi){if(all)delete SEL[gi];else SEL[gi]=true;});}}
   else{var g=parseInt(b.getAttribute('data-g'),10);if(SEL[g])delete SEL[g];else SEL[g]=true;}
   renderChoices();});
+$('onlynew').addEventListener('click',function(){ONLYNEW=!ONLYNEW;renderChoices();});
 $('sizes').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
-  size=parseInt(b.getAttribute('data-n'),10);
+  size=b.getAttribute('data-n')==='all'?'all':parseInt(b.getAttribute('data-n'),10);
   Array.prototype.forEach.call($('sizes').children,function(x){x.classList.toggle('on',x===b);});});
-$('go').addEventListener('click',function(){closeSheet();var ks=selKeys();startSession(ks.length?ks:'all',size);});
+$('go').addEventListener('click',function(){closeSheet();var ks=selKeys();startSession(ks.length?ks:'all',size,ONLYNEW);});
 
 /* ===== PHIÊN HỌC ===== */
 var S=null;
-function startSession(sc,n){
+function startSession(sc,n,onlyNew){
   var pool=ITEMS.filter(function(it){return sc==='all'||sc.indexOf(it.g)>-1;});
+  if(onlyNew)pool=pool.filter(function(it){return sOf(it.id)===0;});
+  if(n==='all')n=pool.length;
   var learning=shuffle(pool.filter(function(it){return sOf(it.id)===1;}));
   var fresh=pool.filter(function(it){return sOf(it.id)===0;});
   if(sc!=='all'&&sc.length>1)fresh=shuffle(fresh);
@@ -1344,7 +1352,7 @@ function setCourse(id){
   GROUPS=C.groups;ITEMS=C.items;KEY=C.keys[0];SKEY=C.keys[1];FKEY=C.keys[2];
   prog=loadJ(KEY);srs=loadJ(SKEY);fillst=loadJ(FKEY);
   var ch=false;Object.keys(fillst).forEach(function(k){var x=fillst[k];if(x&&x.w===undefined){x.w=(x.n>0&&!x.s)?1:0;x.k=x.k||0;ch=true;}});if(ch)fsave();
-  scope='all';OPENU={};SEL={};OPENS={};DSEL={};
+  scope='all';OPENU={};SEL={};OPENS={};DSEL={};ONLYNEW=false;
   try{localStorage.setItem('gtbn_course',id);}catch(e){}
 }
 $('ctabs').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
