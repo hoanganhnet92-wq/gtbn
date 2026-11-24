@@ -76,6 +76,7 @@ svg{flex:none}
 .txtbtn{border:none;background:none;color:var(--muted);font-size:.86rem;cursor:pointer;text-decoration:underline;padding:6px 0}
 
 .cta{position:fixed;left:0;right:0;bottom:0;z-index:25;pointer-events:none}
+.cta-stick{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--barh,56px));z-index:16;background:var(--bg);padding-top:6px;padding-bottom:12px;box-shadow:0 10px 14px -10px var(--shadow)}
 .cta>div{max-width:520px;margin:0 auto;pointer-events:auto;background:var(--surface);border-radius:22px 22px 0 0;
   box-shadow:0 -8px 28px -14px var(--shadow);padding-top:14px;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
 .btn{width:100%;border:none;border-radius:14px;background:var(--blue);color:var(--blue-ink);font-weight:700;font-size:1.12rem;
@@ -294,6 +295,7 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
     <div class="sec pad" id="sec-route">
       <h2>Lộ trình các phần</h2>
       <p class="srs-intro" id="route-now"></p>
+      <div class="cta-stick" id="cta-home"><button class="btn" id="start">Chọn và bắt đầu đào tạo</button></div>
       <div class="route" id="route"></div>
     </div>
 
@@ -317,7 +319,6 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
       <button class="txtbtn" id="reset">Đặt lại tiến độ</button>
     </div>
 
-    <div class="cta" id="cta-home"><div class="pad"><button class="btn" id="start">Chọn và bắt đầu đào tạo</button></div></div>
   </div>
 
   <!-- DANH SÁCH THUẬT NGỮ -->
@@ -1117,6 +1118,9 @@ function groupLearned(gi){var all=ITEMS.filter(function(it){return it.g===gi;});
   return {n:all.filter(function(it){return sOf(it.id)===2;}).length,t:all.length};}
 function curGroup(){for(var gi=0;gi<GROUPS.length;gi++){var c=groupLearned(gi);if(c.n<c.t)return gi;}return -1;}
 var OPENU={};
+var UCOLORS=['#8b5cf6','#f59e0b','#06b6d4','#ec4899','#3b82f6','#ef4444','#14b8a6','#e0558b'];
+function uColor(k){var n=parseInt(String(k).replace(/\D/g,''),10)||1;return UCOLORS[(n-1)%UCOLORS.length];}
+function uStripe(col,w){return col?' style="box-shadow:inset '+(w||4)+'px 0 0 '+col+'"':'';}
 var CHEV='<svg class="uchev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
 function unitKey(gn){var m=/^(U\d+) · /.exec(gn);return m?m[1]:null;}
 function plainName(gn){return gn.replace(/^U\d+ · /,'');}
@@ -1124,8 +1128,8 @@ function unitGroups(){var out=[],map={};
   for(var gi=0;gi<GROUPS.length;gi++){var k=unitKey(GROUPS[gi]);if(!k)return null;
     if(!map[k]){map[k]={k:k,title:((COURSES[COURSE].units||{})[k])||k,gis:[]};out.push(map[k]);}map[k].gis.push(gi);}
   return out.length?out:null;}
-function routeRow(gi,cg,sub){var c=groupLearned(gi),done=c.n>=c.t,cur=gi===cg;
-  return '<div class="rt-row'+(sub?' sub':'')+(cur?' cur':'')+(done?' fin2':'')+'"><span class="rt-n">'+(done?'✓':(gi+1))+'</span><div class="rt-main"><div class="rt-top2"><span class="rt-name">'+esc(sub?plainName(GROUPS[gi]):GROUPS[gi])+'</span>'+(cur?'<span class="pill">Đang học</span>':'')+'</div>'+
+function routeRow(gi,cg,sub,col){var c=groupLearned(gi),done=c.n>=c.t,cur=gi===cg;
+  return '<div class="rt-row'+(sub?' sub':'')+(cur?' cur':'')+(done?' fin2':'')+'"'+uStripe(col,3)+'><span class="rt-n">'+(done?'✓':(gi+1))+'</span><div class="rt-main"><div class="rt-top2"><span class="rt-name">'+esc(sub?plainName(GROUPS[gi]):GROUPS[gi])+'</span>'+(cur?'<span class="pill">Đang học</span>':'')+'</div>'+
     '<div class="rt-bar"><i style="width:'+Math.round(100*c.n/c.t)+'%"></i></div></div><span class="rt-cnt">'+c.n+'/'+c.t+'</span></div>';}
 function renderRoute(){
   var el=$('route');if(!el)return;var cg=curGroup(),html='',ug=unitGroups();
@@ -1133,9 +1137,9 @@ function renderRoute(){
   else ug.forEach(function(u){
     var n=0,t=0;u.gis.forEach(function(gi){var c=groupLearned(gi);n+=c.n;t+=c.t;});
     var cur=u.gis.indexOf(cg)>-1,done=n>=t,open=!!OPENU['r'+u.k];
-    html+='<div class="rt-row unit'+(cur?' cur':'')+(done?' fin2':'')+(open?' open':'')+'" data-u="'+u.k+'" role="button" aria-expanded="'+open+'"><span class="rt-n">'+(done?'✓':u.k.slice(1))+'</span><div class="rt-main"><div class="rt-top2"><span class="rt-name">'+esc(u.title)+'</span>'+(cur?'<span class="pill">Đang học</span>':'')+'</div>'+
+    html+='<div class="rt-row unit'+(cur?' cur':'')+(done?' fin2':'')+(open?' open':'')+'"'+uStripe(uColor(u.k),5)+' data-u="'+u.k+'" role="button" aria-expanded="'+open+'"><span class="rt-n">'+(done?'✓':u.k.slice(1))+'</span><div class="rt-main"><div class="rt-top2"><span class="rt-name">'+esc(u.title)+'</span>'+(cur?'<span class="pill">Đang học</span>':'')+'</div>'+
       '<div class="rt-bar"><i style="width:'+Math.round(100*n/t)+'%"></i></div></div><span class="rt-cnt">'+n+'/'+t+'</span>'+CHEV+'</div>';
-    if(open)u.gis.forEach(function(gi){html+=routeRow(gi,cg,true);});
+    if(open)u.gis.forEach(function(gi){html+=routeRow(gi,cg,true,uColor(u.k));});
   });
   el.innerHTML=html;
   if(cg<0)$('route-now').textContent='Anh đã học xong cả '+GROUPS.length+' phần. Chuyển sang ôn tập để giữ trí nhớ.';
@@ -1185,8 +1189,8 @@ var SEL={},OPENS={},ONLYNEW=false;
 function selKeys(){return Object.keys(SEL).map(Number);}
 function grpCount(gi){var all=ITEMS.filter(function(it){return it.g===gi;});
   return {d:all.filter(function(it){return sOf(it.id)===2;}).length,t:all.length};}
-function choicePart(gi,sub){var c=grpCount(gi);
-  return '<button class="choice'+(SEL[gi]?' on':'')+(sub?' sub':'')+'" data-g="'+gi+'"><span class="cl"><i class="cb"></i>'+esc(sub?plainName(GROUPS[gi]):GROUPS[gi])+'</span><small>'+c.d+'/'+c.t+'</small></button>';}
+function choicePart(gi,sub,col){var c=grpCount(gi);
+  return '<button class="choice'+(SEL[gi]?' on':'')+(sub?' sub':'')+'"'+uStripe(col,3)+' data-g="'+gi+'"><span class="cl"><i class="cb"></i>'+esc(sub?plainName(GROUPS[gi]):GROUPS[gi])+'</span><small>'+c.d+'/'+c.t+'</small></button>';}
 function renderChoices(){
   var ks=selKeys(),s=stats(),ug=unitGroups();
   var html='<button class="choice'+(!ks.length?' on':'')+'" data-a="all"><span class="cl"><i class="cb"></i>Tất cả các nhóm</span><small>'+s.learned+'/'+ITEMS.length+' đã học</small></button>';
@@ -1194,8 +1198,8 @@ function renderChoices(){
   else ug.forEach(function(u){
     var n=0,d=0,t=0;u.gis.forEach(function(gi){if(SEL[gi])n++;var c=grpCount(gi);d+=c.d;t+=c.t;});
     var all=n===u.gis.length,some=n>0&&!all,open=!!OPENS[u.k];
-    html+='<div class="choice urow'+(all?' on':'')+(some?' mix':'')+(open?' open':'')+'" data-u="'+u.k+'" role="button"><span class="cl"><i class="cb"></i>'+esc(u.title)+'</span><small>'+(n?n+' phần · ':'')+d+'/'+t+'</small><span class="cx" data-x="'+u.k+'" aria-label="Mở danh sách phần">'+CHEV+'</span></div>';
-    if(open)u.gis.forEach(function(gi){html+=choicePart(gi,true);});
+    html+='<div class="choice urow'+(all?' on':'')+(some?' mix':'')+(open?' open':'')+'"'+uStripe(uColor(u.k),5)+' data-u="'+u.k+'" role="button"><span class="cl"><i class="cb"></i>'+esc(u.title)+'</span><small>'+(n?n+' phần · ':'')+d+'/'+t+'</small><span class="cx" data-x="'+u.k+'" aria-label="Mở danh sách phần">'+CHEV+'</span></div>';
+    if(open)u.gis.forEach(function(gi){html+=choicePart(gi,true,uColor(u.k));});
   });
   $('choices').innerHTML=html;
   var base=ks.length?ITEMS.filter(function(it){return SEL[it.g];}):ITEMS;
@@ -1413,15 +1417,15 @@ function fcnt(id){var x=fillst[sk(id)];return (x&&x.s)||0;}
 function fcounts(ids){var w=0,k=0;ids.forEach(function(id){if(isWeak(id))w++;if(isKnown(id))k++;});return {w:w,k:k};}
 var DSEL={};
 function dKeys(){return Object.keys(DSEL).map(Number).sort(function(a,b){return a-b;});}
-function deckRow(gi,cntFn,sub){return '<button class="deck'+(sub?' sub':'')+'" data-g="'+gi+'"><span class="dcb" data-c="'+gi+'" aria-label="Chọn phần này"><i class="cb'+(DSEL[gi]?' on':'')+'"></i></span><span class="dn">'+esc(sub?plainName(GROUPS[gi]):GROUPS[gi])+(gi===curGroup()?'<em class="cur">đang học</em>':'')+'</span><span class="cnt">'+cntFn(idsOf(gi))+'</span></button>';}
+function deckRow(gi,cntFn,sub,col){return '<button class="deck'+(sub?' sub':'')+'"'+uStripe(col,3)+' data-g="'+gi+'"><span class="dcb" data-c="'+gi+'" aria-label="Chọn phần này"><i class="cb'+(DSEL[gi]?' on':'')+'"></i></span><span class="dn">'+esc(sub?plainName(GROUPS[gi]):GROUPS[gi])+(gi===curGroup()?'<em class="cur">đang học</em>':'')+'</span><span class="cnt">'+cntFn(idsOf(gi))+'</span></button>';}
 function deckGroups(cntFn){
   var ug=unitGroups(),h='';
   if(!ug){GROUPS.forEach(function(gn,gi){h+=deckRow(gi,cntFn,false);});return h;}
   var cg=curGroup();
   ug.forEach(function(u){var ids=[],n=0;u.gis.forEach(function(gi){ids=ids.concat(idsOf(gi));if(DSEL[gi])n++;});var open=!!OPENU['d'+u.k];
     var st=n===u.gis.length?' on':(n>0?' mix':'');
-    h+='<button class="deck unit'+(open?' open':'')+'" data-u="'+u.k+'" aria-expanded="'+open+'"><span class="dcb" data-cu="'+u.k+'" aria-label="Chọn cả Unit"><i class="cb'+st+'"></i></span><span class="dn">'+esc(u.title)+(u.gis.indexOf(cg)>-1?'<em class="cur">đang học</em>':'')+'</span><span class="cnt">'+cntFn(ids)+'</span>'+CHEV+'</button>';
-    if(open)u.gis.forEach(function(gi){h+=deckRow(gi,cntFn,true);});});
+    h+='<button class="deck unit'+(open?' open':'')+'"'+uStripe(uColor(u.k),5)+' data-u="'+u.k+'" aria-expanded="'+open+'"><span class="dcb" data-cu="'+u.k+'" aria-label="Chọn cả Unit"><i class="cb'+st+'"></i></span><span class="dn">'+esc(u.title)+(u.gis.indexOf(cg)>-1?'<em class="cur">đang học</em>':'')+'</span><span class="cnt">'+cntFn(ids)+'</span>'+CHEV+'</button>';
+    if(open)u.gis.forEach(function(gi){h+=deckRow(gi,cntFn,true,uColor(u.k));});});
   return h;}
 function renderDsel(){
   var ks=dKeys(),el=$('dsel');if(!el)return;
