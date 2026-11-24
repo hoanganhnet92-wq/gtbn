@@ -20,6 +20,7 @@
   --bg:#f1efe9; --surface:#ffffff; --ink:#1d1b18; --muted:#7a746a; --line:#e6e2d9; --tile:#ecebe5;
   --blue:#1473f5; --blue-ink:#ffffff; --amber:#d99a0b; --purple:#6b48c9; --green:#1c9a6b; --red:#d6453d;
   --soft-green:#def3ea; --soft-red:#fbe4e2; --soft-blue:#e3eefe; --shadow:rgba(30,25,15,.28);
+  --sec-route-bg:#eef1fe; --sec-review-bg:#eafaf2;
   --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
   padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);
 }
@@ -27,17 +28,21 @@
   --bg:#12110e; --surface:#1d1b17; --ink:#f0eadf; --muted:#a39b8c; --line:#34302a; --tile:#2a2722;
   --blue:#5aa2ff; --blue-ink:#0b1b33; --amber:#f0b73a; --purple:#a58cf0; --green:#4cc79a; --red:#ef7a72;
   --soft-green:#173428; --soft-red:#3b1f1d; --soft-blue:#16273f; --shadow:rgba(0,0,0,.6); color-scheme:dark;
+  --sec-route-bg:#191d2b; --sec-review-bg:#15231d;
 }}
 :root[data-theme="dark"]{
   --bg:#12110e; --surface:#1d1b17; --ink:#f0eadf; --muted:#a39b8c; --line:#34302a; --tile:#2a2722;
   --blue:#5aa2ff; --blue-ink:#0b1b33; --amber:#f0b73a; --purple:#a58cf0; --green:#4cc79a; --red:#ef7a72;
   --soft-green:#173428; --soft-red:#3b1f1d; --soft-blue:#16273f; --shadow:rgba(0,0,0,.6); color-scheme:dark;
+  --sec-route-bg:#191d2b; --sec-review-bg:#15231d;
 }
 .ctabs{display:flex;gap:8px;background:var(--surface);padding-top:2px;padding-bottom:14px;box-shadow:0 1px 0 var(--line)}
 .ctabs button{flex:1;min-width:0;border:1.5px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:9px 6px;
   font-size:.9rem;font-weight:700;cursor:pointer;line-height:1.25}
 .ctabs button.on{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
 .soon{text-align:center;padding-top:40px;padding-bottom:40px}
+#sec-route{background:var(--sec-route-bg)}
+#sec-review{background:var(--sec-review-bg)}
 .soon h2{margin-bottom:8px}
 .soon p{color:var(--muted);margin:0 auto}
 *{box-sizing:border-box}
@@ -76,7 +81,7 @@ svg{flex:none}
 .txtbtn{border:none;background:none;color:var(--muted);font-size:.86rem;cursor:pointer;text-decoration:underline;padding:6px 0}
 
 .cta{position:fixed;left:0;right:0;bottom:0;z-index:25;pointer-events:none}
-.cta-stick{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--barh,56px));z-index:16;background:var(--bg);padding-top:6px;padding-bottom:12px;box-shadow:0 10px 14px -10px var(--shadow)}
+.cta-stick{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--barh,56px));z-index:16;background:var(--sec-route-bg);padding-top:6px;padding-bottom:12px;box-shadow:0 10px 14px -10px var(--shadow)}
 .cta>div{max-width:520px;margin:0 auto;pointer-events:auto;background:var(--surface);border-radius:22px 22px 0 0;
   box-shadow:0 -8px 28px -14px var(--shadow);padding-top:14px;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
 .btn{width:100%;border:none;border-radius:14px;background:var(--blue);color:var(--blue-ink);font-weight:700;font-size:1.12rem;
