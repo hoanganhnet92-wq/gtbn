@@ -41,6 +41,8 @@
   font-size:.9rem;font-weight:700;cursor:pointer;line-height:1.25}
 .ctabs button.on{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
 .soon{text-align:center;padding-top:40px;padding-bottom:40px}
+.vsel{width:100%;padding:13px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font-size:1rem;font-family:inherit}
+.vhint{color:var(--muted);font-size:.9rem;margin:0 0 12px}
 #sec-route{background:var(--sec-route-bg)}
 #sec-review{background:var(--sec-review-bg)}
 .soon h2{margin-bottom:8px}
@@ -318,6 +320,13 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 
     <button class="linkrow pad" id="open-list">Mở danh sách thuật ngữ
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+
+    <div class="sec pad" id="sec-voice">
+      <h2>Giọng đọc</h2>
+      <p class="vhint" id="voice-hint">Chọn giọng nghe êm nhất trên máy của anh rồi bấm Nghe thử.</p>
+      <select id="voice-sel" class="vsel"></select>
+      <button class="btn sec2" id="voice-test" style="margin-top:12px">Nghe thử</button>
+    </div>
 
     <div class="tools pad" id="tools">
       <span style="color:var(--muted);font-size:.84rem">Tiến độ lưu trên trình duyệt của bạn</span>
@@ -1097,7 +1106,10 @@ function doSpeak(text,rate){
   try{speechSynthesis.resume();}catch(e){}
   text=String(text).replace(/\s*\/\s*/g,', ').replace(/[–—]/g,' ');
   var u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=rate||.75;
-  var v=bestVoice(speechSynthesis.getVoices()||[]);
+  var vs=speechSynthesis.getVoices()||[],v=null;
+  var pref=''; try{pref=localStorage.getItem('gtbn_voice')||'';}catch(e){}
+  if(pref)v=vs.filter(function(x){return x.voiceURI===pref;})[0]||null;
+  if(!v)v=bestVoice(vs);
   if(v){u.voice=v;u.lang=v.lang||"en-US";}
   var started=false;u.onstart=function(){started=true;};
   u.onerror=function(){fallbackListen(text);};
@@ -1123,7 +1135,7 @@ function renderHome(){
   var C=COURSES[COURSE],soon=!!C.soon;
   Array.prototype.forEach.call(document.querySelectorAll('#ctabs button'),function(b){var on=b.getAttribute('data-c')===COURSE;b.classList.toggle('on',on);b.setAttribute('aria-selected',on);});
   $('c-title').textContent=C.title;$('c-desc').textContent=C.desc;
-  ['sec-course','sec-route','sec-review','open-list','tools','cta-home'].forEach(function(id){$(id).hidden=soon;});
+  ['sec-course','sec-route','sec-review','open-list','tools','cta-home','sec-voice'].forEach(function(id){$(id).hidden=soon;});
   $('sec-soon').hidden=!soon;
   if(soon)return;
   var s=stats();
@@ -1818,12 +1830,44 @@ $('f-body').addEventListener('change',function(e){if(!F||e.target.id!=='f-known'
 $('f-body').addEventListener('keydown',function(e){if(!F||e.key!=='Enter'||e.target.tagName==='BUTTON'||e.target.id==='f-known')return;e.preventDefault();if(!F.done)fCheck();});
 $('f-close').addEventListener('click',function(){F=null;renderHome();show('home');});
 
+function curVoiceURI(){try{return localStorage.getItem('gtbn_voice')||'';}catch(e){return '';}}
+function activeVoice(){var vs=speechSynthesis.getVoices()||[],p=curVoiceURI(),v=null;
+  if(p)v=vs.filter(function(x){return x.voiceURI===p;})[0]||null;
+  return v||bestVoice(vs);}
+function fillVoices(){
+  var sel=$('voice-sel');if(!sel)return;
+  var vs=(speechSynthesis.getVoices()||[]).filter(function(x){return /^en/i.test(x.lang);});
+  vs.sort(function(a,b){return voiceScore(b)-voiceScore(a);});
+  var cur=curVoiceURI();
+  var h='<option value="">Tự động (chọn giọng tốt nhất)</option>';
+  vs.forEach(function(x){
+    var tag=/enhanced|premium|neural|natural/i.test(x.name+x.voiceURI)?' ⭐':(/compact/i.test(x.name+x.voiceURI)?' (rút gọn)':'');
+    h+='<option value="'+esc(x.voiceURI)+'"'+(x.voiceURI===cur?' selected':'')+'>'+esc(x.name)+' ['+esc(x.lang)+']'+tag+'</option>';
+  });
+  sel.innerHTML=h;
+  var hint=$('voice-hint'),av=activeVoice();
+  if(!vs.length)hint.textContent='Máy chưa có giọng tiếng Anh nào trình duyệt gọi được. Anh tải một giọng "Nâng cao" trong Cài đặt rồi mở lại app.';
+  else if(av&&/compact/i.test(av.name+av.voiceURI))hint.textContent='Đang dùng giọng rút gọn (nghe rè). Nếu danh sách có giọng ⭐ thì chọn nó; nếu chưa có, anh tải giọng "Nâng cao" trong Cài đặt rồi mở lại app.';
+  else hint.textContent='Đang dùng: '+(av?av.name:'mặc định')+'. Chọn giọng khác rồi Nghe thử nếu muốn.';
+}
+function initVoiceUI(){
+  var sel=$('voice-sel');if(!sel||sel._wired)return;sel._wired=1;
+  sel.addEventListener('change',function(){
+    try{localStorage.setItem('gtbn_voice',sel.value);}catch(e){}
+    _bv=null;_bvn=0;fillVoices();
+    speak('Hello. How are you today? Where is the laboratory?');
+  });
+  $('voice-test').addEventListener('click',function(){speak('Hello. How are you today? Where is the laboratory?');});
+  fillVoices();
+  try{speechSynthesis.onvoiceschanged=function(){fillVoices();};}catch(e){}
+}
 function syncBarH(){var b=document.querySelector('.bar');if(b)document.documentElement.style.setProperty('--barh',b.offsetHeight+'px');}
 syncBarH();window.addEventListener('resize',syncBarH);
 
 var c0='basic';try{c0=localStorage.getItem('gtbn_course')||'basic';}catch(e){}
 setCourse(c0);
 renderHome();
+initVoiceUI();
 })();
 </script>
 <script>
