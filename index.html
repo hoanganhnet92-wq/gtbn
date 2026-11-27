@@ -1077,14 +1077,28 @@ function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(M
 /* ===== PHÁT ÂM ===== */
 function ttsOk(){return ('speechSynthesis' in window)&&('SpeechSynthesisUtterance' in window);}
 function fallbackListen(t){} /* không mở trang ngoài khi máy không đọc được */
+function voiceScore(v){
+  var n=((v.name||'')+' '+(v.voiceURI||'')).toLowerCase();var s=0;
+  if(/en[-_]us/i.test(v.lang))s+=3;else if(/^en[-_]?(gb|au|ca)/i.test(v.lang))s+=2;else if(/^en/i.test(v.lang))s+=1;else return -99;
+  if(/compact|eloquence|fred|albert|bad |novelty/.test(n))s-=8;
+  if(/enhanced|premium|neural|natural/.test(n))s+=5;
+  if(/\b(samantha|ava|allison|susan|zoe|joelle|evan|nicky|aaron|siri|nathan|noelle)\b/.test(n))s+=2;
+  if(v.localService)s+=1;if(v.default)s+=1;
+  return s;}
+var _bv=null,_bvn=0;
+function bestVoice(vs){
+  if(!vs.length)return null;
+  if(_bv&&vs.length===_bvn)return _bv;
+  var best=null,bs=-1e9;
+  for(var i=0;i<vs.length;i++){var sc=voiceScore(vs[i]);if(sc>bs){bs=sc;best=vs[i];}}
+  _bv=best;_bvn=vs.length;return best;}
 function doSpeak(text,rate){
   if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();
   try{speechSynthesis.resume();}catch(e){}
   text=String(text).replace(/\s*\/\s*/g,', ').replace(/[–—]/g,' ');
   var u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=rate||.75;
-  var vs=speechSynthesis.getVoices()||[];
-  var v=vs.filter(function(x){return /en[-_]US/i.test(x.lang);})[0]||vs.filter(function(x){return /^en/i.test(x.lang);})[0];
-  if(v)u.voice=v;
+  var v=bestVoice(speechSynthesis.getVoices()||[]);
+  if(v){u.voice=v;u.lang=v.lang||"en-US";}
   var started=false;u.onstart=function(){started=true;};
   u.onerror=function(){fallbackListen(text);};
   speechSynthesis.speak(u);
